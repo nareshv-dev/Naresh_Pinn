@@ -1,0 +1,876 @@
+Physics-Informed Neural Networks for Multi-Physics
+Simulation of Electric Vehicle Battery Systems
+PHASE I REPORT
+Submitted by
+NARESH V
+KISHORE J
+KISHORE P S
+MOHAMED SHAHEEL A
+in partial fulfillment for the award of the degree of
+BACHELOR OF ENGINEERING IN 
+COMPUTER SCIENCE AND 
+ENGINEERING
+DEPARTMENT OF COMPUTER 
+SCIENCE AND ENGINEERING
+KPR INSTITUTE OF ENGINEERING 
+AND TECHNOLOGY
+ANNA UNIVERSITY, CHENNAI
+ 
+SEPTEMBER  2026
+1
+
+
+ANNA UNIVERSITY, CHENNAI
+BONAFIDE CERTIFICATE
+Certified that this Report titled Physics-Informed Neural Networks for Multi-Physics 
+Simulation of Electric Vehicle Battery Systems  is the bonafide work of NARESH V 
+(23CS112),  KISHORE  J  (23CS090),  KISHORE  P  S  (23CS091),  MOHAMED  
+SHAHEEL A (23CS102)  who carried out the work under the supervision of Ms. C.  
+Sasikala. Certified further that to the best of my knowledge the work reported herein  
+does not form part of any other thesis or dissertation on the basis of which a degree or  
+award was conferred on an earlier occasion on this or any other candidate.
+Signature of HOD                                                                          Signature of Supervisor
+Dr.Miruna Joe Amali S                                                                  Ms. C. Sasikala  
+Professor and Head,                                                                       Assistant Professor,
+Department of CSE,                                                                       Department of CSE.
+KPRIET. 
+2
+
+ABSTRACT
+Electric vehicle battery management systems require fast access to internal cell states such  
+as  lithium  concentration,  temperature,  and  diffusion-induced  stress,  while  conventional  
+numerical  approaches  based  on  discretisation  and  time  stepping  are  computationally  
+expensive for real-time use. This project develops a multi-physics Physics-Informed Neural  
+Network (PINN) framework that embeds governing physical laws directly into neural-
+network training.
+The Phase I implementation uses the PyBaMM SPMe model with lumped thermal coupling  
+to  generate  a  ground-truth  dataset  over  twenty  constant-current  discharge  conditions  
+spanning 0.5C to 2.0C and ambient temperatures from 10°C to 35°C. The dataset contains  
+43,200 labelled spatio-temporal points. Diffusion-induced radial and tangential stresses are  
+obtained through analytical post-processing using a spherical-particle formulation because  
+the selected PyBaMM workflow does not directly provide these stress fields.
+A single feed-forward network with four inputs and four outputs is trained using Fickian  
+diffusion, a lumped thermal energy balance, mechanical equilibrium, boundary constraints,  
+and sparse labelled data. The model contains 67,210 trainable parameters and uses hard-
+constrained output forms for the initial concentration, initial temperature, and free-surface  
+radial  stress.  Training  combines  Adam  and  L-BFGS,  followed  by  residual-adaptive  
+refinement when the held-out concentration error exceeds the target.
+On the  held-out  test  split, the  final  temperature  relative  L2 error  is 0.03%  with R²  =  
+0.99938, while concentration, radial stress, and tangential stress achieve relative L2 errors  
+of 28.50%, 18.90%, and 25.10%, respectively. The PINN inference time is approximately  
+0.71 ms for 2,160 field points on a Tesla T4, compared with 464 ms for a PyBaMM SPMe  
+discharge, giving a measured speed-up of about 657×. The remaining accuracy gap is traced 
+to imbalance in adaptive loss weighting, particularly under-enforcement of the surface flux  
+and labelled-data terms. 
+3
+
+TABLE OF CONTENTS
+ACKNOWLEDGEMENT........................................................................................................ 3
+ABSTRACT............................................................................................................................... 4
+LIST OF TABLES..................................................................................................................... 6
+LIST OF FIGURES................................................................................................................... 7
+LIST OF SYMBOLS AND ABBREVIATIONS..................................................................... 8
+1 INTRODUCTION..................................................................................................... 9
+1.1 General........................................................................................................................ 9
+1.2 Need for the Study....................................................................................................... 9
+1.3 Problem Statement..................................................................................................... 10
+1.4 Objectives.................................................................................................................. 10
+1.5 Scope and Contributions............................................................................................ 10
+2 REVIEW OF LITERATURE................................................................................. 12
+2.1 Introduction............................................................................................................... 12
+2.2 Foundations of PINNs............................................................................................... 12
+2.3 PINNs for Battery Modelling.................................................................................... 12
+2.4 Multi-Physics Battery PINNs.................................................................................... 13
+2.5 Research Gap............................................................................................................. 14
+3 METHODOLOGY AND SYSTEM DESIGN....................................................... 15
+3.1 System Overview....................................................................................................... 15
+3.2 Ground-Truth Simulation.......................................................................................... 15
+3.3 Governing Equations................................................................................................. 16
+3.4 Non-Dimensionalisation............................................................................................ 16
+3.5 PINN Architecture..................................................................................................... 17
+3.6 Hard-Constrained Outputs and Physics-Informed Loss.............................................17
+3.7 Collocation and Labelled Data Sampling.................................................................. 18
+3.8 Training Strategy....................................................................................................... 18
+3.9 Residual-Adaptive Fine-Tuning................................................................................ 19
+3.10 Evaluation Protocol................................................................................................... 19
+4
+
+4 IMPLEMENTATION, RESULTS AND DISCUSSION...................................... 21
+4.1 Implementation Environment.................................................................................... 21
+4.2 Dataset Generation and Splitting............................................................................... 21
+4.3 Training Checks and Two-Stage Optimisation.......................................................... 22
+4.4 Field Validation on Held-Out Conditions.................................................................. 23
+4.5 Parity and Error Distribution..................................................................................... 24
+4.6 Generalisation across the Operating Envelope.......................................................... 25
+4.7 Physics Residuals and Root-Cause Analysis............................................................. 25
+4.8 Final Test-Set Metrics............................................................................................... 26
+4.9 Residual-Adaptive Ablation...................................................................................... 26
+4.10 Inference Benchmark................................................................................................. 27
+4.11 Deployment Export................................................................................................... 27
+4.12 Final Performance Scorecard..................................................................................... 28
+4.13 Discussion................................................................................................................. 28
+5 CONCLUSION AND FUTURE WORK............................................................... 30
+5.1 Conclusion................................................................................................................. 30
+5.2 Current Status............................................................................................................ 30
+5.3 Future Work.............................................................................................................. 31
+5
+
+LIST OF TABLES
+Table 1. Summary of the project scope and current status........................................................ 12
+Table 2. Literature survey and identified limitations................................................................. 15
+Table 3. PyBaMM physical parameters used in the simulation................................................. 17
+Table 4. Dataset composition and operating envelope............................................................... 22
+Table 5. PINN architecture........................................................................................................ 18
+Table 6. Collocation and labelled training points...................................................................... 19
+Table 7. Training configuration................................................................................................. 20
+Table 8. Final test-set evaluation metrics.................................................................................. 27
+Table 9. Residual-adaptive fine-tuning ablation........................................................................ 27
+6
+
+LIST OF FIGURES
+Figure 1. System architecture and data flow.............................................................................. 16
+Figure 2. Ground-truth data overview....................................................................................... 23
+Figure 3. Collocation point distribution..................................................................................... 19
+Figure 4. Two-stage training loss behaviour.............................................................................. 24
+Figure 5. Residual-adaptive fine-tuning.................................................................................... 20
+Figure 6. Held-out field validation............................................................................................ 25
+Figure 7. Parity plots and error distributions............................................................................. 25
+Figure 8. Generalisation across the operating envelope............................................................. 26
+Figure 9. Physics residual maps................................................................................................. 26
+Figure 10. PINN versus PyBaMM inference time..................................................................... 28
+Figure 11. Final performance scorecard.................................................................................... 29
+7
+
+LIST OF SYMBOLS AND ABBREVIATIONS
+Symbol / Abbreviation Meaning
+PINN Physics-Informed Neural Network
+BMS Battery Management System
+SPMe Single Particle Model with electrolyte
+DFN Doyle–Fuller–Newman model
+PDE Partial Differential Equation
+FEM Finite Element Method
+FDM Finite Difference Method
+RAR Residual-Adaptive Refinement
+SOC State of Charge
+SOH State of Health
+Adam Adaptive Moment Estimation
+L-BFGS Limited-memory Broyden–Fletcher–Goldfarb–Shanno
+R² Coefficient of determination
+L2 Relative Euclidean/L2 error
+RMSE Root Mean Square Error
+MAE Mean Absolute Error
+MAPE Mean Absolute Percentage Error
+T4 NVIDIA Tesla T4 GPU
+r Particle radial coordinate
+t Time
+c Solid-phase lithium concentration
+T Cell temperature
+σr Radial stress
+σθ Tangential stress
+Rp Negative-particle radius
+Ds Solid diffusion coefficient
+jn Interfacial current density
+F Faraday constant
+ρcp Volumetric/effective heat capacity
+hA/V Volumetric heat-transfer coefficient
+8
+
+CHAPTER 1
+INTRODUCTION
+1.1 GENERAL
+Lithium-ion batteries are central to modern electric vehicles, and the battery management  
+system  (BMS)  must  maintain  safe  and  efficient  operation  while  responding  rapidly  to 
+changing operating conditions. Terminal voltage and current are readily measurable, but  
+important  internal  quantities  such  as  lithium  concentration  gradients,  cell  temperature  
+distribution,  and  mechanical  stress  are  not  directly  available  from  conventional  BMS  
+measurements.  These  internal  states  influence  power  capability,  thermal  safety,  
+degradation, and mechanical failure.
+Conventional  high-fidelity  battery  simulation  uses  numerical  solvers  such  as  finite-
+difference or finite-element methods. These approaches discretise the governing equations  
+over a mesh and advance the solution through time. Their computational cost increases with  
+spatial resolution, simulation duration, and the number of coupled physical domains. This  
+makes direct deployment of a full multi-physics solver inside a vehicle control loop difficult 
+when the controller has only milliseconds of computation time.
+Physics-Informed  Neural  Networks  provide  an  alternative  by  representing  the  solution  
+fields with a differentiable neural network and incorporating the governing equations into  
+the  training loss. Automatic  differentiation supplies the  required derivatives, while  the  
+network  learns  a  continuous  approximation  of  the  physical  fields.  After  training,  the  
+solution can be evaluated with a single forward pass rather than a mesh-based time-stepping 
+procedure.
+1.2 NEED FOR THE STUDY
+A useful battery surrogate for an intelligent BMS must balance three requirements: physical  
+consistency, prediction speed, and generalisation beyond a small set of operating points.  
+Purely data-driven networks can be fast after training, but their predictions depend heavily  
+on the coverage and quality of labelled cycling data. Numerical solvers provide physically  
+meaningful reference solutions but are too expensive for repeated real-time inference. A  
+PINN can combine sparse reference data with the physical equations, creating a model that  
+is both computationally compact and constrained by known battery behaviour.
+9
+
+The present work focuses on coupling electrochemical transport, thermal behaviour, and  
+diffusion-induced mechanical stress in one cell-level PINN. The project is intentionally  
+scoped  to  a  tractable  SPMe  formulation,  constant-current  discharge,  one-way  thermal  
+coupling, and analytically derived stress. These boundaries allow the Phase I pipeline to be  
+implemented and evaluated systematically while leaving clear extension paths toward a full  
+DFN formulation and experimental validation.
+1.3 PROBLEM STATEMENT
+The problem addressed in this project is the development of a computationally efficient  
+neural surrogate capable of predicting internal electrochemical, thermal, and mechanical  
+battery states while respecting their governing equations. The model should accept space-
+time coordinates and operating-condition descriptors, provide multiple physical fields in  
+one forward pass, and achieve sufficiently low latency for future BMS integration. At the  
+same time, the evaluation must distinguish genuine accuracy from apparent performance  
+caused by data leakage or an inadequate test split.
+1.4 OBJECTIVES
+1.  Develop  a  single  multi-output  PINN  representing  electrochemical,  thermal,  and  
+mechanical behaviour of a lithium-ion cell.
+2. Embed Fickian diffusion, a lumped thermal energy balance, and mechanical equilibrium  
+directly into the physics-informed objective.
+3.  Generate  a  reproducible  PyBaMM  ground-truth  dataset  across  multiple  C-rates  and  
+ambient temperatures, with train, validation, and test conditions separated by operating  
+condition.
+4. Validate the PINN against the numerical reference using relative L2 error, RMSE, MAE,  
+MAPE, R², maximum absolute error, and inference latency.
+5. Establish a deployment-oriented inference module and identify the remaining accuracy  
+bottleneck for the next project phase.
+10
+
+1.5 SCOPE AND CONTRIBUTIONS
+The main Phase I contribution is an end-to-end pipeline that connects numerical ground-
+truth generation, analytical stress post-processing, data scaling, collocation sampling, PINN  
+construction, physics-informed training, residual-adaptive fine-tuning, full-grid evaluation,  
+and deployment export. The implementation uses one network with four outputs: solid-
+phase concentration c(r,t), cell temperature T(t), radial stress σr, and tangential stress σθ.
+The current implementation demonstrates that the thermal field can be learned with very  
+high  accuracy  and  that  the  trained  network  can  provide  a  substantial  inference-speed  
+advantage  over  the  reference  SPMe  solve.  It  also  produces  a  useful  negative  result:  
+additional  collocation  points  alone  do  not  remove  the  concentration  bias.  The  failure  
+analysis identifies adaptive loss weighting as the likely cause, which provides a focused  
+direction for the next phase.
+Item Phase I status
+Multi-physics PINN Implemented and trained
+Physics domains Electrochemical + thermal + mechanical
+Ground-truth data 43,200 points across 20 conditions
+Final temperature error 0.03% relative L2 on test split
+Final concentration error 28.50% relative L2 on test split
+Inference benchmark 0.71 ms versus 464 ms; ~657× faster
+BMS integration Planned for Phase II
+Table 1. Summary of the project scope and current status.
+11
+
+CHAPTER 2
+REVIEW OF LITERATURE
+2.1 INTRODUCTION
+The literature reviewed for this project spans foundational PINN methodology, physics-
+informed battery state  estimation, degradation modelling, and early attempts to couple  
+multiple battery physics domains. The review indicates that PINNs are increasingly used as  
+surrogates or state estimators, but the coupling of electrochemical, thermal, and mechanical  
+behaviour in one cell-level model remains comparatively underexplored.
+The project therefore treats the literature review not only as a survey of algorithms, but also  
+as a design constraint. The selected architecture, loss formulation, data split, and evaluation  
+strategy are motivated by limitations observed in earlier studies.
+2.2 FOUNDATIONS OF PINNs
+Raissi, Perdikaris, and Karniadakis introduced the widely adopted PINN framework in  
+which governing differential equations are incorporated into a neural-network objective  
+through automatic differentiation [1]. Karniadakis and co-authors subsequently positioned  
+physics-informed  machine  learning  as  a  broader  family  of  approaches  that  combines  
+physical priors with data and neural architectures [2]. These works establish the central idea  
+used here: the neural network is not trained only to match observations; it is also penalised  
+when its derivatives violate the governing equations.
+For battery applications, this principle is attractive because high-fidelity internal states are  
+difficult to measure densely. A sparse numerical reference solution can anchor the model,  
+while the PDE residual supplies additional structure between labelled points. However, the  
+balance among data, boundary conditions, and different physics residuals becomes a critical  
+optimisation issue when several fields have very different scales.
+12
+
+2.3 PINNs FOR BATTERY MODELLING
+Nascimento et al. developed a hybrid Bayesian PINN framework for lithium-ion battery  
+prognosis, showing how governing equations can be combined with neural models and  
+uncertainty estimation [3]. Hofmann et al. used P2D battery simulations together with  
+laboratory  and  field  measurements  for  state-of-health  estimation  [4].  Wang  et  al.  
+incorporated physics and monotonicity constraints into degradation modelling and reported  
+strong prognosis performance across hundreds of cells [5].
+Other work has focused on state estimation and reduced-order battery models. Singh et al.  
+incorporated the Fick diffusion equation from a single-particle formulation into a PINN for  
+battery state estimation [7]. Hassanaly et al. developed multi-fidelity PINN surrogates for  
+SPM  and  P2D  models  and  demonstrated  large  computational  speed-ups  for  parameter  
+inference [8]. Mendez-Corbacho et al. showed that the single-particle model can be solved  
+without labelled data using a physics-informed formulation [9]. These studies motivate the  
+use of reduced-order electrochemical physics in the present Phase I implementation while  
+also highlighting the gap between single-physics surrogates and fully coupled multi-physics  
+models.
+2.4 MULTI-PHYSICS BATTERY PINNS
+Kim et al. investigated a multiphysics-informed neural network for lithium-ion battery  
+thermal runaway prediction by jointly incorporating electrochemical and thermal behaviour  
+[6].  This  demonstrates  the  value  of  coupling  more  than  one  physical  mechanism,  but  
+mechanical stress is not represented. The project reviewed this as an important limitation  
+because swelling and diffusion-induced stress are directly connected to particle integrity  
+and long-term degradation.
+The project also builds on the PyBaMM modelling ecosystem. Sulzer et al. introduced  
+PyBaMM as an open-source framework for mathematical battery modelling [10]. PyBaMM  
+is used here as the numerical reference generator rather than as a run-time dependency of  
+the exported PINN. Mechanical stress is derived analytically from the concentration field  
+using the spherical-particle formulation of Cheng and Verbrugge [11], since the selected  
+PyBaMM workflow does not directly provide the required stress field.
+DeepXDE  and  related  physics-informed  numerical  libraries  provide  established  
+implementation patterns for differentiable differential-equation solving and residual-based  
+13
+
+sampling  [12].  The  present  notebook  follows  the  same  general  philosophy  while  
+implementing the model directly in PyTorch so that the final inference package can remain  
+lightweight.
+Reference Focus Method Strength Limitation relevant to 
+this project
+Raissi et al. [1] PINN foundations PDE residuals with 
+automatic differentiation
+Foundational PINN 
+framework
+Canonical PDE 
+examples; not battery 
+multi-physics
+Karniadakis et al. [2] Physics-informed ML 
+review
+Physical priors + data + 
+architecture
+Design principles and 
+limitations
+Review, not a cell-level 
+battery model
+Nascimento et al. [3] Li-ion prognosis Hybrid Bayesian PINN Uncertainty-aware 
+prognosis
+Lumped model; no 
+spatial thermal/stress 
+field
+Hofmann et al. [4] SOH estimation P2D-generated data + 
+measurements Battery SOH estimation Physics mainly supplies 
+reference data
+Wang et al. [5] Degradation prognosis PDE + data + 
+monotonicity
+Strong 
+transfer/prognosis 
+results
+Empirical degradation 
+law
+Kim et al. [6] Thermal runaway Electrochemical + 
+thermal PINN
+Multi-physics early 
+warning
+Mechanical stress 
+excluded
+Singh et al. [7] State estimation SPM/Fick diffusion 
+PINN
+Efficient reduced-order 
+estimation
+Isothermal, single-
+particle scope
+Hassanaly et al. [8] PINN surrogate SPM/P2D multi-fidelity 
+training Large speed-ups Electrochemistry only
+Mendez-Corbacho et al. 
+[9] Unsupervised SPM No labelled data 
+required Parameter generalisation SPM only
+Sulzer et al. [10] PyBaMM Open-source battery 
+simulation
+Reference numerical 
+framework
+Solver remains 
+computationally heavier 
+than surrogate inference
+Cheng & Verbrugge 
+[11] Particle stress Analytical stress 
+integrals
+Provides mechanical 
+ground truth
+Depends on elastic 
+spherical-particle 
+assumptions
+Lu et al. [12] DeepXDE Differential-equation 
+ML library
+Residual sampling and 
+PINN tooling
+General-purpose rather 
+than battery-specific
+Table 2. Literature survey and identified limitations.
+2.5 RESEARCH GAP
+Based on the reviewed sources and the comparison presented in the project presentation,  
+existing battery PINN studies primarily address a single physical domain or, in a smaller  
+number  of  cases,  a  coupled  electrochemical-thermal  problem.  The  project  identifies  a  
+specific  gap  at  the  intersection  of  electrochemical  transport,  thermal  response,  and  
+mechanical stress within a single cell-level PINN intended for rapid inference.
+The gap is therefore operational as well as scientific. A model that only predicts voltage or  
+a single reduced-order state does not expose the internal quantities that a future physics-
+aware BMS could use for thermal and mechanical risk assessment. The present project  
+addresses this gap by predicting four physical outputs simultaneously and by embedding the 
+governing relationships into one composite objective.
+14
+
+CHAPTER 3
+METHODOLOGY AND SYSTEM DESIGN
+3.1 SYSTEM OVERVIEW
+The proposed workflow consists of five implemented modules: (M1) ground-truth data  
+generation, (M2) domain scaling and collocation sampling, (M3) PINN construction and  
+physics  loss,  (M4)  two-stage  training  with  residual-adaptive  fine-tuning,  and  (M5)  
+evaluation and deployment export. The design deliberately separates the numerical solver  
+from the final inference path. PyBaMM is used to generate and validate training data, while  
+the exported PINN can operate without PyBaMM at run time.
+Figure 1. System architecture and data flow.
+3.2 GROUND-TRUTH SIMULATION
+Ground truth is generated with the Chen2020 parameter set corresponding to an LG M50  
+cylindrical cell with nominal capacity of 5 Ah. Each operating condition is simulated as a  
+constant-current discharge using the PyBaMM SPMe model with lumped thermal coupling  
+and a 2.5 V voltage cut-off. The radial coordinate is sampled at 24 points and time at 90  
+points, giving 2,160 spatio-temporal nodes per condition.
+For  every  simulation  the  pipeline  stores  radial  lithium  concentration,  cell  temperature, 
+temperature rise, terminal voltage, volumetric heat generation, and analytically derived  
+radial and tangential stresses. A sanity filter rejects simulations that terminate implausibly  
+early relative to the expected discharge duration. This prevents an invalid short discharge  
+from entering the training dataset.
+15
+
+Parameter Value Unit
+Particle radius, Rp 5.86 µm
+Solid diffusivity, Ds 3.30 × 10 ¹⁴⁻ m²/s
+Maximum concentration, cmax 33,133 mol/m³
+Heat-transfer coefficient, h 10.0 W/m²/K
+Cooling area / volume, hA/V 2,194 W/m³/K
+Nominal capacity 5.00 Ah
+Partial molar volume 3.497 × 10 ⁶⁻ m³/mol
+Young's modulus, E 15.0 GPa
+Poisson ratio 0.30 –
+Table 3. PyBaMM physical parameters used in the simulation.
+3.3 GOVERNING EQUATIONS
+Three physical domains are embedded in the loss. The electrochemical domain describes  
+solid-phase lithium diffusion inside a spherical active-material particle. The thermal domain  
+describes the cell temperature response to a time-dependent volumetric heat source. The  
+mechanical domain imposes radial equilibrium between radial and tangential stresses.
+Electrochemical diffusion (Fick's second law):
+∂c/∂t = Ds [ ∂²c/∂r² + (2/r)(∂c/∂r) ]
+At r = 0:  ∂c/∂r = 0      |      At r = Rp:  −Ds ∂c/∂r = jn/F
+Thermal energy balance:
+ρcp (dT/dt) = q̇ gen(t) − (hA/V)(T − Tamb)
+Mechanical equilibrium:
+∂σr/∂r + (2/r)(σr − σθ) = 0      |      σr(Rp) = 0
+The mechanical stress field is obtained analytically from the concentration field using the  
+Cheng–Verbrugge  spherical-particle  formulation.  For  a  radial  position  r,  the  
+implementation evaluates volume-averaged concentration terms and then computes σr and  
+σθ. This makes stress a genuine additional prediction target rather than a direct PyBaMM  
+output.
+16
+
+3.4 NON-DIMENSIONALISATION
+PINN optimisation is highly sensitive to scale differences between variables and residuals.  
+In this project the raw quantities span approximately 10⁴ mol/m³ for concentration, 300 K  
+for temperature, and 10⁷ Pa for stress. Without scaling, the stress derivatives can dominate  
+the composite objective. Each field is therefore mapped to an order-one representation.
+r)  = r/Rp,   t)  = t/tend,   c)  = c/cmax,   T)  = (T − Tamb)/50 K,   σ) = σ/20 MPa
+The network inputs are further mapped to [−1,+1]. The dimensionless diffusion coefficient  
+is αk = Ds tend,k / Rp², with values from 1.66 to 6.95 over the operating conditions. The  
+dimensionless  surface-flux  constant  ranges  from  −0.1653  to  −0.0413.  The  heat-source  
+reconstruction was verified with 0.000% reported error, and the energy balance closes to  
+five significant figures.
+3.5 PINN ARCHITECTURE
+The PINN uses a single feed-forward trunk with four inputs: normalised radius, normalised  
+time, C-rate, and ambient temperature. Five hidden layers contain 128 tanh units each,  
+followed by four outputs corresponding to concentration, temperature, radial stress, and  
+tangential stress. Xavier-normal initialisation is used for the linear layers.
+Layer / Property Specification
+Input 4 features: r] , t] , C-rate, ambient temperature
+Hidden layers 5 × 128 fully connected layers
+Activation tanh
+Output 4 physical fields
+Initialisation Xavier normal
+Trainable parameters 67,210
+Output constraints c(0)=c0, T(0)=Tamb, σr(Rp)=0 hard-encoded
+Table 5. PINN architecture.
+17
+
+3.6 HARD-CONSTRAINED OUTPUTS AND PHYSICS-INFORMED LOSS
+Three conditions are encoded directly into the output algebra rather than being left entirely  
+to penalty terms. The concentration output is written as c]  = c] 0,k + t]  Nc, guaranteeing the  
+initial concentration. Temperature is written as T = Tamb,k + 50K· t]  NT, guaranteeing the  
+initial temperature. Radial stress is written as σr = 20MPa·(1− r] ) Ns, guaranteeing zero  
+radial stress at the free surface.
+The  remaining  loss  components  are  the  Fick  diffusion  residual,  symmetry  boundary  
+residual, surface-flux boundary residual, thermal energy residual, mechanical equilibrium  
+residual, and a sparse labelled-data term. Their effective weights are learned using log-
+variance parameters:
+L = Σi [ exp(−si) Li + si ]
+This adaptive weighting removes the need for manual grid search over λ values, but the  
+later results show that the same mechanism can become a failure mode when a nearly exact  
+residual receives an excessively large effective weight.
+3.7 COLLOCATION AND LABELLED DATA SAMPLING
+The training set contains 12 operating conditions. For each condition the notebook creates  
+1,600 interior collocation points, 200 centre-symmetry boundary points, 200 surface-flux  
+boundary points, and 260 labelled points. Latin hypercube sampling is used for interior  
+collocation to provide better coverage than simple uniform random sampling.
+Point type Points per condition Total over 12 train conditions
+Interior PDE collocation 1,600 19,200
+Symmetry boundary, r=0 200 2,400
+Surface-flux boundary, r=Rp 200 2,400
+Labelled data 260 3,120
+Table 6. Collocation and labelled training points.
+18
+
+Figure 3. Collocation point distribution used for physics and data constraints.
+3.8 TRAINING STRATEGY
+Training uses two stages. Stage 1 applies Adam with cosine-annealed learning rate and  
+gradient clipping for 6,000 epochs. Stage 2 switches to L-BFGS with strong Wolfe line  
+search; the learned loss weights are frozen so that the quasi-Newton stage sees a stationary  
+objective.  The  recorded  run  completed  Adam  in  373.8  s  and  L-BFGS  in  88.0  s,  for  
+approximately 462 s of main training.
+Setting Value
+Adam epochs 6,000
+Adam initial learning rate 1.5 × 10 ³⁻
+Gradient clipping 10.0
+L-BFGS function evaluations 1,321 recorded
+Loss-weight status in L-BFGS Frozen
+Main training time ≈ 462 s
+Hardware Tesla T4, 15.6 GB CUDA device
+Table 7. Training configuration.
+19
+
+3.9 RESIDUAL-ADAPTIVE FINE-TUNING
+When  held-out  concentration  accuracy  misses  the  2%  relative-L2  target,  the  notebook  
+automatically performs residual-adaptive refinement. A large candidate pool is evaluated  
+using the Fick residual, the highest-residual points are selected, and 600 new collocation  
+points are added per round. Each round performs 1,200 Adam steps followed by L-BFGS  
+refinement.
+The baseline concentration test error was 33.30%. Three refinement rounds reduced the best 
+test error to 28.50%. Because the improvement flattened, the experiment provides evidence  
+that  sampling  density  is  not  the  main  limiting  factor.  The  best  checkpoint  is  restored 
+automatically after the ladder.
+Figure 5. Residual-adaptive fine-tuning across three refinement rounds.
+3.10 EVALUATION PROTOCOL
+Evaluation  is  performed  on  the  full  24  ×  90  spatio-temporal  grid  for  every  operating 
+condition,  rather  than  only  on  the  sampled  collocation  points.  The  dataset  split  is  by  
+operating condition to prevent neighbouring points from the same simulation appearing in  
+both training and test sets. The test conditions are 1.25C at 20°C and 1.25C at 30°C, which  
+are unseen C-rate and ambient-temperature combinations relative to the training set.
+The  reported  metrics  are  relative  L2  error,  RMSE,  MAE,  MAPE,  R²,  and  maximum  
+absolute error. In addition, inference latency is measured for one 2,160-point field query  
+and compared with a full PyBaMM SPMe discharge solve.
+20
+
+CHAPTER 4
+IMPLEMENTATION, RESULTS AND DISCUSSION
+4.1 IMPLEMENTATION ENVIRONMENT
+The notebook is designed to run in Google Colab and is device-agnostic. The recorded  
+environment used PyTorch 2.11.0+cu128, PyBaMM 26.8.0.0, NumPy 2.1.3, and a CUDA-
+enabled NVIDIA Tesla T4 GPU with 15.6 GB memory. A fixed seed of 42 is used for  
+reproducibility.  The  full  pipeline,  including  data  generation,  training,  evaluation,  and  
+export, is designed to remain within free-tier execution limits.
+The  implementation  uses  Python,  PyTorch  for  the  neural  network  and  automatic  
+differentiation, PyBaMM for numerical battery simulation, NumPy/SciPy for numerical  
+processing and stress post-processing, pandas for tabular data, Matplotlib for publication  
+figures, and openpyxl/XlsxWriter for Excel export.
+4.2 DATASET GENERATION AND SPLITTING
+Twenty operating conditions produce 43,200 labelled points. The training set contains 12  
+conditions at C-rates 0.5, 1.0, 1.5, and 2.0C with ambient temperatures of 10°C, 25°C, and  
+35°C. Validation contains 0.75C and 1.75C at the same three ambient temperatures. The  
+two test conditions use 1.25C at 20°C and 30°C, so both rate and temperature are unseen  
+during training.
+Split Conditions C-rates Ambient 
+temperatures Rows
+Train 12 0.5, 1.0, 1.5, 2.0C 10, 25, 35°C 25,920
+Validation 6 0.75, 1.75C 10, 25, 35°C 12,960
+Test 2 1.25C 20, 30°C 4,320
+Total 20 0.5–2.0C 10–35°C 43,200
+Table 4. Dataset composition and operating envelope.
+21
+
+Figure 2. Ground-truth data overview across the simulated operating conditions.
+The  generated  dataset  follows  the  expected  physical  trends.  Lithium  concentration  
+decreases from the particle surface during discharge, temperature rise increases strongly  
+with C-rate, and the analytically derived radial stress satisfies the free-surface condition.  
+Data are exported as dataset.csv, dataset.xlsx, and metadata.json, with the latter storing per-
+condition constants required by the PINN.
+4.3 TRAINING CHECKS AND TWO-STAGE OPTIMISATION
+Before full training, a small smoke-test configuration runs for 80 epochs. The test verifies  
+finite loss, decreasing loss, finite outputs, presence of all six loss components, exact initial  
+concentration,  and  exact  free-surface  radial  stress.  The  recorded  loss  decreases  from  
+6842.7876 to 11.9596, and all assertions pass.
+22
+
+Figure 4. Two-stage training behaviour: Adam exploration followed by L-BFGS refinement.
+The main Adam stage is stable without divergence, NaNs, or restarts. The adaptive weights  
+separate rapidly during early training. L-BFGS then refines the smooth physics-constrained  
+objective. At the final recorded convergence point, the Fick residual is 1.66×10 ³, thermal⁻  
+residual 1.45×10 ³, mechanical residual 4.12×10 ⁴, symmetry boundary residual 3.44×10 ⁸,⁻ ⁻ ⁻  
+surface-flux residual 2.79×10 ³, and labelled-data loss 2.01×10 ¹.⁻ ⁻
+4.4 FIELD VALIDATION ON HELD-OUT CONDITIONS
+The principal held-out visual validation uses the 1.25C discharge at 20°C. The temperature  
+prediction closely overlaps the PyBaMM reference and achieves a relative L2 error of  
+0.03%. The concentration heat maps and radial profiles reproduce the reference shape and  
+curvature, but the predicted concentration is systematically lower by approximately 2,000  
+mol/m³. The stress fields similarly reproduce the overall shape and sign but under-predict  
+magnitude.
+23
+
+Figure 6. Predicted and reference fields for the held-out 1.25C, 20°C condition.
+4.5 PARITY AND ERROR DISTRIBUTION
+Across all 4,320 test points, the temperature parity plot is tightly centred on the diagonal,  
+whereas concentration forms an approximately parallel line below the diagonal. The stress  
+errors  are  predominantly  one-sided.  This  indicates  systematic  bias  rather  than  random  
+scatter.  The  distinction  is  important:  increasing  model  capacity  or  randomising  more  
+samples would be less likely to solve a systematic offset than correcting the physical or  
+optimisation constraint responsible for it.
+Figure 7. Parity plots and error distributions for all four predicted fields on the test split.
+24
+
+4.6 GENERALISATION ACROSS THE OPERATING ENVELOPE
+The generalisation map shows that concentration relative-L2 error remains broadly flat,  
+approximately 26.6% to 30.0%, across the evaluated operating envelope, including training  
+conditions. Temperature remains highly accurate, with reported relative-L2 errors around  
+0.02% to 0.08%. The stress percentage errors become very large at low C-rate because the  
+true stress approaches zero; absolute errors remain around the order of 2 MPa.
+Figure 8. Generalisation of concentration, temperature, and tangential-stress predictions across operating 
+conditions.
+4.7 PHYSICS RESIDUALS AND ROOT-CAUSE ANALYSIS
+The residual maps provide the key diagnostic result. The Fick residual is low and smooth  
+over most of the interior, and mechanical equilibrium is also largely satisfied away from the  
+r=0 coordinate singularity. Therefore, the concentration failure cannot be explained simply  
+by an inability to learn the PDE.
+Figure 9. Spatial-temporal maps of the Fick and mechanical-equilibrium residuals.
+The more important evidence is the imbalance between the boundary and data terms. The  
+symmetry boundary residual falls to 3.44×10 ⁸, while the surface-flux residual remains at⁻  
+2.79×10 ³  and  the  labelled-data  term  remains  at  2.01×10 ¹.  Under  inverse-loss-style⁻ ⁻  
+adaptive weighting, the already-satisfied symmetry term can attract an extremely large  
+25
+
+effective weight, approximately 3×10⁷ according to the project analysis, while the data term  
+receives a weight near 5. This starves the terms that control the absolute concentration  
+level.
+The  concentration  error  is  almost  identical  on  train,  validation,  and  test  splits  
+(approximately 28.4%, 28.4%, and 28.5% after refinement). This is consistent with under-
+fitting or loss imbalance rather than over-fitting. The systematic concentration bias then  
+propagates to the stress fields because the stress calculation depends on the concentration  
+gradient.
+4.8 FINAL TEST-SET METRICS
+Field Rel. L2 RMSE MAE MAPE R² Max AE 2% target
+Temperature 
+T 0.03% 0.114 K 0.088 K 0.028% 0.99938 0.273 K Met
+Concentration 
+c 28.50% 6,079 5,678 57.9% 0.5928 7,672 Missed
+Radial stress 
+σr 18.90% 2.45 MPa 1.73 MPa 106% 0.8204 21.7 MPa Missed
+Tangential 
+stress σθ 25.10% 3.11 MPa 2.49 MPa 126% 0.9212 21.7 MPa Missed
+Table 8. Final test-set evaluation metrics after the best residual-adaptive refinement checkpoint.
+The final metrics should be interpreted field by field. Temperature clearly meets the 2% L2  
+target and exceeds the 0.99 R² target. Concentration and both stress fields do not yet meet  
+the target. The stress MAPE values above 100% are not directly comparable with the  
+concentration MAPE because low-C-rate stress values are close to zero; percentage error  
+therefore becomes unstable. Absolute stress error provides a more useful view for this  
+stage.
+4.9 RESIDUAL-ADAPTIVE ABLATION
+Round Action Collocation points Test L2 concentration Test L2 temperature
+0 Baseline Adam + L-
+BFGS 19,200 33.30% 0.0366%
+1 RAR +600; Adam 1200 
++ L-BFGS 400 19,800 34.22% 0.0313%
+2 RAR +600; Adam 1200 
++ L-BFGS 400 20,400 32.05% 0.0298%
+3 RAR +600; Adam 1200 
++ L-BFGS 400 21,000 28.50% 0.0254%
+Table 9. Residual-adaptive fine-tuning ablation recorded by the notebook.
+The first refinement round temporarily worsened concentration error, while the second and  
+third rounds improved it. The best result after three rounds is 28.50%, still well above the  
+26
+
+2% target. This confirms that residual-adaptive sampling is useful as a diagnostic and  
+incremental refinement mechanism, but it is not sufficient to remove the dominant bias.
+4.10 INFERENCE BENCHMARK
+The deployment-oriented benchmark compares a PINN forward pass for 2,160 points with a 
+complete PyBaMM SPMe discharge simulation. The PINN requires approximately 0.706–
+0.71 ms on the Tesla T4, whereas the PyBaMM solve takes approximately 464 ms. The  
+measured ratio is approximately 657×.
+Figure 10. Inference latency comparison between the PINN and the PyBaMM reference solver.
+The speed advantage comes from replacing mesh-based time stepping with a single neural  
+forward pass. For the exported model, the run-time package is approximately 290 KB and  
+does not require PyBaMM. This supports the long-term feasibility of an embedded BMS  
+prediction layer, although the present accuracy limitations must be resolved before safety-
+critical deployment.
+27
+
+4.11 DEPLOYMENT EXPORT
+The  notebook  exports  trained  weights  as  pinn_model.pt  and  generates  a  standalone  
+pinn_inference.py module. The module requires only PyTorch and NumPy for inference,  
+loads the saved model, and returns concentration, temperature, radial stress, and tangential  
+stress in physical units. A round-trip test confirms that the exported module reproduces the  
+in-notebook prediction path.
+The current deployment artifact is therefore structurally ready for integration, but the Phase  
+II  BMS layer  remains outside  the  present  scope. The  planned next  layer will  use  the  
+predicted fields to derive SOC and SOH-related indicators, apply model quantisation where  
+appropriate, and evaluate execution on embedded hardware.
+4.12 FINAL PERFORMANCE SCORECARD
+Figure 11. Final PINN performance scorecard.
+The scorecard summarises the central Phase I result: the computational objective has been  
+demonstrated, while the accuracy objective is only partially achieved. The project therefore  
+has a reproducible and measurable foundation for Review 3 rather than a completed final  
+battery surrogate.
+28
+
+4.13 DISCUSSION
+Three conclusions follow from the implementation results. First, the proposed architecture  
+is  expressive  enough  to  learn  the  thermal  response  with  very  high  accuracy  and  to  
+reproduce the qualitative structure of the electrochemical and mechanical fields. Second,  
+the  test  split  design  is  strong  enough  to  expose  generalisation  to  unseen  operating  
+conditions  rather  than  merely  memorising  neighbouring  points.  Third,  the  dominant  
+concentration error is systematic and closely associated with the optimisation objective, not  
+simply with inadequate sampling.
+This diagnosis is important for the next iteration. Changing the architecture or adding large  
+amounts  of  data  would  increase  computational  effort  without  directly  addressing  the  
+observed imbalance. The more targeted approach is to normalise the surface-flux residual,  
+split the labelled-data loss by output field, and constrain the adaptive-weight range so that  
+already-satisfied hard constraints cannot dominate the optimisation.
+29
+
+CHAPTER 5
+CONCLUSION AND FUTURE WORK
+5.1 CONCLUSION
+This Phase  I project  developed and evaluated a  Physics-Informed Neural  Network for  
+multi-physics simulation of an electric-vehicle lithium-ion battery cell. The final pipeline  
+generates reference data with PyBaMM, derives diffusion-induced stress analytically, scales 
+the physical variables, samples collocation points, trains a four-output PINN, performs  
+residual-adaptive refinement, evaluates the complete spatio-temporal grid, and exports a  
+lightweight inference module.
+The implementation successfully embeds three governing physical relationships—solid-
+phase lithium diffusion, lumped thermal energy balance, and mechanical equilibrium—into  
+a single model. Hard constraints guarantee the initial concentration, initial temperature, and  
+free-surface radial stress. The dataset contains 43,200 labelled points across 20 operating  
+conditions, and the model contains 67,210 trainable parameters.
+The results demonstrate a strong computational advantage. A 2,160-point PINN forward  
+pass takes about 0.71 ms on a Tesla T4, compared with 464 ms for a PyBaMM SPMe  
+discharge, yielding a measured speed-up of approximately 657×. Thermal prediction is also  
+highly accurate, with 0.03% relative L2 error and R² = 0.99938 on the held-out test set.
+However, the project does not claim that all physical fields are accurate. Concentration  
+remains biased low with 28.50% relative L2 error, while radial and tangential stress errors  
+are 18.90% and 25.10%. The analysis indicates that adaptive log-variance weighting over-
+emphasises already-satisfied terms such as the symmetry boundary condition and under-
+emphasises the surface-flux and labelled-data terms. This produces a solution that satisfies  
+the interior PDE while remaining offset from the reference concentration level.
+5.2 CURRENT STATUS
+Objective Status Evidence
+Multi-physics PINN Achieved Single network predicts c, T, σr, σθ
+Governing equations Achieved Three physics residuals embedded
+Dataset generation Achieved 43,200 points; 20 conditions
+Numerical validation Partial Temperature target met; other fields 
+require improvement
+Real-time inference Achieved for benchmark 0.71 ms and ~657× speed-up
+BMS prediction layer Phase II SOC/SOH integration and embedded 
+export planned
+30
+
+5.3 FUTURE WORK
+The Phase II Project work is focused on the loss function rather than on a new architecture.  
+Three changes are planned:
+1.  Normalise  the  surface-flux  residual  by  the  magnitude  of  the  target  flux  so  that  its 
+contribution remains comparable across C-rates.
+2.  Split the labelled-data term into separate concentration, temperature, radial-stress, and  
+tangential-stress components so that each output can adapt its own weighting.
+3.  Floor  and  cap  the  adaptive  weights,  excluding  already  hard-satisfied  terms  from  
+dominating the objective and limiting the ratio between component weights.
+Beyond the loss-function correction, the project plans to extend the electrochemical model  
+from  SPMe  toward  the  full  Doyle–Fuller–Newman  (DFN)  formulation,  investigate  
+charging  and  realistic  drive-cycle  inputs,  introduce  ageing  and  degradation  states,  and  
+validate  the  stress  field  experimentally.  The  Phase  II  BMS  layer  will  also  explore  
+SOC/SOH estimation, quantisation, and execution on embedded hardware.
+Future action Purpose
+Loss rebalancing Remove concentration bias caused by objective 
+imbalance
+Full DFN extension Resolve richer electrochemical transport
+Charging and drive cycles Move beyond constant-current discharge
+Ageing / degradation Connect internal fields to SOH and lifetime
+Experimental stress validation Test analytical stress assumptions
+Embedded deployment Measure latency, memory, and quantisation effects
+Publication package Freeze figures, manuscript, code and dataset
+Table 10. Review 3 corrective actions and longer-term extensions.
+31
+
+REFERENCES
+[1]  Raissi, M., Perdikaris, P., Karniadakis, G. E., “Physics-informed neural networks,” Journal of  
+Computational Physics, 378, 686–707 (2019).
+[2] Karniadakis, G. E., Kevrekidis, I. G., Lu, L., Perdikaris, P., Wang, S., Yang, L., “Physics-informed  
+machine learning,” Nature Reviews Physics, 3, 422–440 (2021).
+[3] Nascimento, R. G., Viana, F. A., Corbetta, M., Kulkarni, C. S., “A framework for Li-ion battery  
+prognosis based on hybrid Bayesian physics-informed neural networks,” Scientific Reports, 13,  
+13856 (2023).
+[4] Hofmann, T., Hamar, J., Rogge, M., Zoerr, C., Erhard, S., Schmidt, J. P., “Physics-informed neural  
+networks for state of health estimation in lithium-ion batteries,” Journal of The Electrochemical  
+Society, 170, 090524 (2023).
+[5] Wang, F., Zhai, Z., Zhao, Z., Di, Y., Chen, X., “Physics-informed neural network for lithium-ion  
+battery degradation stable modeling and prognosis,” Nature Communications, 15, 4332 (2024).
+[6]  Kim, S. W., Kwak, E., Kim, J.-H., Oh, K.-Y., Lee, S., “Modeling and prediction of lithium-ion  
+battery thermal runaway via multiphysics-informed neural network,” Journal of Energy Storage,  
+60, 106654 (2023).
+[7]  Singh, S., Ebongue, Y. E., Rezaei, S., et al., “Hybrid modeling of lithium-ion battery: physics-
+informed neural network for battery state estimation,” Batteries, 9(6), 301 (2023).
+[8] Hassanaly, M., Weddle, P. J., King, R. N., De, S., Doostan, A., et al., “PINN surrogate of Li-ion  
+battery models for parameter inference, Parts I and II,” Journal of Energy Storage, 98, 113103 and  
+113104 (2024).
+[9]  Mendez-Corbacho,  F.  J.,  Larrarte-Lizarralde,  B.,  Parra,  R.,  et  al.,  “Physics-informed  neural  
+networks for modeling Li-ion batteries: solving the single particle model without labeled data,”  
+Journal of The Electrochemical Society, 171(11), 110534 (2024).
+[10]  Sulzer,  V.,  Marquis,  S.  G.,  Timms,  R.,  Robinson,  M.,  Chapman,  S.  J.,  “Python  Battery  
+Mathematical Modelling (PyBaMM),” Journal of Open Research Software, 9, 14 (2021).
+[11]  Cheng,  Y.-T.,  Verbrugge,  M.  W.,  “Evolution  of  stress  within  a  spherical  insertion  electrode 
+particle under potentiostatic and galvanostatic operation,” Journal of Power Sources, 190, 453–460  
+(2009).
+[12]  Lu, L., Meng, X., Mao, Z., Karniadakis, G. E., “DeepXDE: a deep learning library for solving  
+differential equations,” SIAM Review, 63(1), 208–228 (2021).
+32
+
+APPENDIX A
+CONFIGURATION AND REPRODUCIBILITY
+The master configuration used by the notebook is summarised below. The dataset split is  
+defined by operating condition, not random rows, to avoid leakage between neighbouring  
+space-time points.
+Configuration item Value
+Training C-rates 0.5, 1.0, 1.5, 2.0C
+Validation C-rates 0.75, 1.75C
+Test C-rate 1.25C
+Training / validation temperatures 10, 25, 35°C
+Test temperatures 20, 30°C
+Radial nodes 24
+Temporal nodes 90
+Voltage cut-off 2.5 V
+Hidden width 128
+Hidden depth 5
+Activation tanh
+Interior collocation 1,600 per training condition
+Boundary points 200 per boundary per training condition
+Labelled points 260 per training condition
+Adam epochs 6,000
+Adam learning rate 1.5×10 ³⁻
+L-BFGS iterations 1,200 configured
+RAR points per round 600
+Maximum RAR rounds 3
+Target concentration L2 2%
+Random seed 42
+Data type float32
+The recorded notebook environment reports PyTorch 2.11.0+cu128, PyBaMM 26.8.0.0,  
+NumPy 2.1.3, and a CUDA Tesla T4 device. The notebook also includes a smoke-test  
+routine that should be run before a full training job.
+33
+
+APPENDIX B
+PROJECT ARTIFACTS
+Artifact Purpose
+dataset.csv Canonical 43,200-row training/reference dataset
+dataset.xlsx Readable Excel workbook with summary, full data, and 
+pivot sheets
+metadata.json Per-condition constants and operating-condition metadata
+pinn_model.pt Exported trained model, scales, and condition information; 
+approximately 290 KB
+pinn_inference.py Standalone inference module requiring PyTorch and 
+NumPy
+metrics_per_condition.csv Per-condition evaluation metrics
+metrics_summary.csv Mean and maximum metrics by split and field
+finetuning_log.csv Residual-adaptive refinement history
+training_history.csv Recorded training loss and weight trajectory
+01_data_overview.png to 09_scorecard.png Publication-oriented figures generated by the notebook
+The exported inference module was round-trip tested against the notebook model. The  
+project presentation records that the module matches the in-notebook model and can return  
+physical-unit  concentration,  temperature,  radial  stress,  and  tangential  stress  without  
+requiring PyBaMM at run time.
+34

@@ -1,0 +1,13 @@
+{
+  "rows": 45000,
+  "conditions": 18,
+  "split_rows": {
+    "test": 5000,
+    "train": 30000,
+    "validation": 10000
+  },
+  "pybamm_version": "26.8.0.0",
+  "model": "SPMe with lumped thermal model",
+  "parameter_set": "Chen2020",
+  "stress": "Analytical Cheng-Verbrugge spherical-particle operator"
+}

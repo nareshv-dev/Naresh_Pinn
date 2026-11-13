@@ -1,0 +1,134 @@
+# =============================================================================
+# Smoke Test Configuration
+# Minimal 2-run config for fast CI / schema validation
+# =============================================================================
+
+config_version: "smoke_v0"
+stage: 1
+
+random_seed: 0
+git_commit: "none"
+
+pybamm:
+  model_name: "SPMe"
+  parameter_set: "Chen2020"
+  model_options:
+    thermal: "lumped"
+  solver: "CasadiSolver"
+  solver_options:
+    mode: "safe"
+    rtol: 1.0e-4
+    atol: 1.0e-4
+  output_variables:
+    voltage: "Voltage [V]"
+    temperature: "Volume-averaged cell temperature [K]"
+    concentration_neg: "X-averaged negative particle concentration [mol.m-3]"
+    r_neg: "X-averaged negative particle concentration [mol.m-3]"
+  mesh:
+    geometry: "1D"
+    n_points_r_neg: 5
+
+sweep:
+  c_rates: [0.5, 1.0]              # only 2 C-rates for speed
+  ambient_temperatures_K: [298.15] # single temperature
+  initial_soc_values: [1.0]
+  protocol:
+    protocol_id: "CC_discharge_smoke"
+    description: "Smoke test: CC discharge"
+    voltage_cutoff_V: 2.5
+
+split_policy:
+  description: "Smoke test split — 1 train, 1 val, 0 test"
+  train:
+    - [0.5, 298.15, 1.0]
+  validation:
+    - [1.0, 298.15, 1.0]
+  test: []  # no held-out test for smoke
+
+quality:
+  voltage_min_V: 2.4
+  voltage_max_V: 4.3
+  temperature_min_K: 230.0
+  temperature_max_K: 360.0
+  concentration_min_mol_m3: 0.0
+  concentration_max_mol_m3: 35000.0
+  require_finite: true
+  require_monotonic_time: true
+  require_monotonic_r: true
+
+paths:
+  raw_data_dir: "data/raw/pybamm_v0/runs"
+  processed_dir: "data/processed"
+  reports_dir: "data/reports"
+  sqlite_manifest: "data/processed/dataset_v0_manifest.sqlite"
+  scaler_artifact: "data/processed/scalers_smoke_v0.json"
+  train_index_parquet: "data/processed/split_smoke_train_v0.parquet"
+  val_index_parquet: "data/processed/split_smoke_val_v0.parquet"
+  test_index_parquet: "data/processed/split_smoke_test_v0.parquet"
+  checkpoints_dir: "outputs/checkpoints"
+  figures_dir: "outputs/figures"
+  logs_dir: "outputs/logs"
+
+nondim:
+  t_ref_s: 1041.0
+  R_s_neg_m: 5.86e-6
+  c_s_max_neg_mol_m3: 33133.0
+  T_ref_K: 298.15
+  delta_T_K: 50.0
+  V_ref_V: 3.7
+  delta_V_V: 1.0
+  I_ref_A: 5.0
+
+training:
+  n_labeled_samples_per_run: 50    # tiny for smoke
+  n_collocation_interior: 100
+  n_collocation_ic: 20
+  n_collocation_bc: 20
+  sampler: "sobol"
+  sampler_seed: 0
+
+  mlp:
+    experiment_id: "EXP-002-smoke"
+    hidden_dims: [16, 16]
+    activation: "tanh"
+    input_dim: 4
+    output_dim: 3
+    learning_rate: 1.0e-3
+    batch_size: 32
+    max_epochs: 5
+    early_stopping_patience: 10
+    optimizer: "Adam"
+    use_lbfgs_refinement: false
+
+  pinn:
+    experiment_id: "EXP-003-smoke"
+    hidden_dims: [16, 16]
+    activation: "tanh"
+    input_dim: 4
+    output_dim: 3
+    learning_rate: 1.0e-3
+    batch_size: 32
+    max_epochs: 5
+    early_stopping_patience: 10
+    optimizer: "Adam"
+    use_lbfgs_refinement: false
+    loss_weights:
+      data: 1.0
+      diffusion_residual: 0.01
+      thermal_residual: 0.01
+      ic: 0.1
+      bc: 0.1
+
+  checkpoint_every_n_epochs: 5
+  log_every_n_steps: 1
+
+evaluation:
+  splits_to_evaluate: ["validation"]
+  latency_n_trials: 10
+  figures:
+    voltage_vs_ref: true
+    temperature_vs_ref: true
+    concentration_heatmap: false   # skip for smoke
+    loss_curves: true
+    residual_histograms: false
+    summary_table: true

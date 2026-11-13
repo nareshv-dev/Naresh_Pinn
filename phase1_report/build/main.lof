@@ -1,0 +1,18 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Phase I PINN architecture and data flow\relax }}{9}{figure.caption.12}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Ground-truth fields and condition-level dataset split\relax }}{10}{figure.caption.13}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Interior, boundary, and labelled points for one operating condition\relax }}{15}{figure.caption.16}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Adam and L-BFGS training histories with adaptive loss weights\relax }}{16}{figure.caption.17}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Error and collocation growth during residual-adaptive refinement\relax }}{16}{figure.caption.18}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Held-out concentration, temperature, and stress fields\relax }}{20}{figure.caption.20}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Parity plots and test-set error distributions\relax }}{20}{figure.caption.21}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Field accuracy across training, validation, and test conditions\relax }}{21}{figure.caption.22}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Dense-grid diffusion and mechanical residual maps\relax }}{21}{figure.caption.23}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Recorded inference-time comparison between PyBaMM and the PINN\relax }}{23}{figure.caption.25}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Phase I accuracy, variance, speed, and implementation scorecard\relax }}{24}{figure.caption.26}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }

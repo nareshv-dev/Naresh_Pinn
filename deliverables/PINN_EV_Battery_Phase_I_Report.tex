@@ -1,0 +1,683 @@
+\documentclass[14pt,a4paper,oneside]{extreport}
+
+\usepackage[a4paper,left=2.54cm,right=2.54cm,top=2cm,bottom=2.54cm,headheight=0.5cm,headsep=0.04cm,includehead]{geometry}
+\usepackage{newtxtext,newtxmath}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs,longtable,array,multirow,tabularx}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{eso-pic}
+\usepackage{ragged2e}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+
+\graphicspath{{figures/}}
+\setstretch{1.5}
+\setlength{\parindent}{1.27cm}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=0.25em,topsep=0.35em}
+\captionsetup{font=small,labelfont=bf,justification=centering}
+\renewcommand{\arraystretch}{1.25}
+
+% Page number: upper-right, approximately 20 mm from the top, aligned to the right margin.
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyhead[R]{\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+% Thin border on every page; the usable text area still observes 2.54 cm margins.
+\AddToShipoutPictureBG{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \draw[line width=0.45pt]
+      ([xshift=1.0cm,yshift=-1.0cm]current page.north west)
+      rectangle
+      ([xshift=-1.0cm,yshift=1.0cm]current page.south east);
+  \end{tikzpicture}}
+
+\titleformat{\chapter}[display]
+  {\centering\bfseries\fontsize{16}{19}\selectfont}
+  {CHAPTER \thechapter}{0.6em}{\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-0.5cm}{1.2cm}
+\titleformat{\section}{\bfseries\fontsize{14}{17}\selectfont}{\thesection}{0.7em}{\MakeUppercase}
+\titleformat{\subsection}{\bfseries\fontsize{14}{17}\selectfont}{\thesubsection}{0.7em}{}
+\titleformat{name=\chapter,numberless}[display]
+  {\centering\bfseries\fontsize{16}{19}\selectfont}{}{0pt}{\MakeUppercase}
+
+\newcommand{\projecttitle}{Physics-Informed Neural Networks for Multi-Physics Simulation of Electric Vehicle Battery Systems}
+\newcommand{\degree}{Bachelor of Engineering in Computer Science and Engineering}
+
+\begin{document}
+\justifying
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+% The title page is counted as page i but its number is not printed.
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+\vspace*{1.0cm}
+{\bfseries\fontsize{18}{22}\selectfont \projecttitle\par}
+\vspace{1.2cm}
+{\bfseries\fontsize{16}{19}\selectfont PHASE I REPORT\par}
+\vspace{1.0cm}
+{\fontsize{14}{18}\selectfont Submitted by\par}
+\vspace{0.5cm}
+{\bfseries
+NARESH V (23CS112)\\
+KISHORE J (23CS090)\\
+KISHORE P S (23CS091)\\
+MOHAMED SHAHEEL A (23CS102)\par}
+\vspace{0.9cm}
+{in partial fulfillment for the award of the degree of\par}
+\vspace{0.4cm}
+{\bfseries\MakeUppercase{\degree}\par}
+\vfill
+{\bfseries DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING\par}
+\vspace{0.3cm}
+{\bfseries KPR INSTITUTE OF ENGINEERING AND TECHNOLOGY\par}
+{\bfseries ANNA UNIVERSITY, CHENNAI\par}
+\vspace{0.8cm}
+{\bfseries OCTOBER 2026\par}
+\end{center}
+\end{titlepage}
+
+% The title page is page i; the certificate must therefore begin at page ii.
+\setcounter{page}{2}
+\clearpage
+\chapter*{Bonafide Certificate}
+\thispagestyle{plain}
+Certified that this Phase I Report titled ``\projecttitle'' is the bonafide work of \textbf{NARESH V (23CS112)}, \textbf{KISHORE J (23CS090)}, \textbf{KISHORE P S (23CS091)}, and \textbf{MOHAMED SHAHEEL A (23CS102)}, who carried out the project under the supervision of \textbf{Ms. C. Sasikala}. Certified further that, to the best of our knowledge, the work reported herein does not form part of any other thesis or dissertation on the basis of which a degree or award was conferred on an earlier occasion on these or any other candidates.
+
+\vspace{3.0cm}
+\noindent
+\begin{tabularx}{\textwidth}{X X}
+\textbf{Signature of the HOD with date} & \textbf{Signature of the Supervisor with date}\\[1.4cm]
+\textbf{Dr. Miruna Joe Amali S} & \textbf{Ms. C. Sasikala}\\
+Professor and Head & Assistant Professor\\
+Department of Computer Science and Engineering & Department of Computer Science and Engineering\\
+KPR Institute of Engineering and Technology & KPR Institute of Engineering and Technology
+\end{tabularx}
+
+\clearpage
+\chapter*{Acknowledgement}
+\addcontentsline{toc}{chapter}{Acknowledgement}
+We express our sincere gratitude to \textbf{Dr. M. Akila, Principal, KPR Institute of Engineering and Technology}, for providing the facilities and academic environment required for this project. We thank \textbf{Dr. Miruna Joe Amali S, Professor and Head, Department of Computer Science and Engineering}, for her guidance and for reviewing the progress of the work.
+
+We are deeply grateful to our supervisor, \textbf{Ms. C. Sasikala, Assistant Professor, Department of Computer Science and Engineering}, for helping us define a defensible research problem, reviewing the mathematical formulation, and guiding the implementation and documentation. Her comments helped us separate the completed Phase I results from extensions that still require experimental evidence.
+
+We also thank the faculty members and technical staff of the department for their support. Finally, we thank our families and friends for their patience, encouragement, and practical help throughout the simulation, training, evaluation, and report-preparation stages.
+
+\clearpage
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+Electric-vehicle battery management requires fast estimates of internal quantities that are difficult to measure directly. Lithium concentration inside electrode particles, cell temperature, and diffusion-induced mechanical stress are useful for understanding power capability and safety, but obtaining these fields repeatedly from a numerical electrochemical solver is expensive. This project develops a multi-physics Physics-Informed Neural Network (PINN) surrogate that combines sparse simulated labels with electrochemical, thermal, and mechanical constraints.
+
+Reference trajectories are produced with the Single Particle Model with electrolyte dynamics (SPMe) in PyBaMM. The Phase I dataset covers constant-current discharge conditions from 0.5C to 2.0C and ambient temperatures from $10^{\circ}$C to $35^{\circ}$C. It contains 43,200 labelled radius--time samples. The network receives normalized radius, time, C-rate, and ambient temperature and predicts solid-phase lithium concentration, cell temperature, radial stress, and tangential stress. Fickian diffusion, a lumped energy balance, spherical-particle mechanics, initial and boundary conditions, and labelled observations contribute to training. Adam and L-BFGS are used sequentially, followed by residual-adaptive refinement when the held-out concentration error remains above the target.
+
+On the recorded Phase I test split, temperature achieved a relative $L_2$ error of 0.03\% with $R^2=0.99938$. Concentration, radial stress, and tangential stress obtained relative $L_2$ errors of 28.50\%, 18.90\%, and 25.10\%, respectively. A forward pass for 2,160 field points required approximately 0.71~ms on a Tesla T4, compared with 464~ms for one PyBaMM SPMe discharge, corresponding to a measured speed-up of about $657\times$. The remaining concentration and stress errors are linked to imbalance between data and boundary-residual terms. Phase II will revise the stress construction, strengthen condition-wise evaluation, and add experimental or cycling data before making degradation or state-of-health claims.
+
+\clearpage
+\tableofcontents
+\clearpage
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+\clearpage
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+\clearpage
+
+\chapter*{List of Symbols and Abbreviations}
+\addcontentsline{toc}{chapter}{List of Symbols and Abbreviations}
+\begin{longtable}{>{\bfseries}p{0.24\textwidth}p{0.68\textwidth}}
+PINN & Physics-Informed Neural Network\\
+BMS & Battery Management System\\
+SPMe & Single Particle Model with electrolyte dynamics\\
+DFN & Doyle--Fuller--Newman porous-electrode model\\
+PDE & Partial Differential Equation\\
+FEM / FDM & Finite Element Method / Finite Difference Method\\
+RAR & Residual-Adaptive Refinement\\
+SOC / SOH & State of Charge / State of Health\\
+Adam & Adaptive Moment Estimation optimizer\\
+L-BFGS & Limited-memory Broyden--Fletcher--Goldfarb--Shanno optimizer\\
+$R^2$ & Coefficient of determination\\
+RMSE / MAE & Root Mean Square Error / Mean Absolute Error\\
+$r,t$ & Particle radial coordinate and time\\
+$c_s$ & Solid-phase lithium concentration\\
+$T$ & Volume-averaged cell temperature\\
+$\sigma_r,\sigma_{\theta}$ & Radial and tangential stresses\\
+$R_p$ & Negative-electrode particle radius\\
+$D_s$ & Solid diffusion coefficient\\
+$j_n$ & Interfacial current density\\
+$F$ & Faraday constant\\
+$\rho c_p$ & Effective volumetric heat capacity\\
+$hA/V$ & Volumetric heat-transfer coefficient\\
+\end{longtable}
+
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\chapter{Introduction}
+\section{General}
+Lithium-ion batteries supply most present-day electric vehicles because they combine high energy density, good cycle efficiency, and a practical power-to-weight ratio. Their performance depends on internal electrochemical and thermal states that a vehicle cannot measure directly. A production battery-management system normally observes current, terminal voltage, and a small number of surface temperatures. It must infer the remaining state of charge, internal temperature, available power, and safety margins from these signals.
+
+Electrode-particle concentration is one of the hidden states. During charging or discharging, lithium enters or leaves the particle surface and diffuses through the solid. A steep radial concentration gradient can create diffusion-induced stress because different parts of the particle expand by different amounts. Temperature changes the reaction and transport rates and can accelerate aging. A model that predicts concentration, temperature, and stress together is therefore useful for diagnosis and model-based control.
+
+Detailed electrochemical models describe these processes through coupled differential equations. The DFN model resolves transport through electrodes, electrolyte, and active-material particles. Its numerical solution requires spatial discretisation and repeated time integration. The SPMe reduces this cost while retaining solid diffusion and important electrolyte effects. Even the reduced model may be too expensive when a controller, optimizer, digital twin, or uncertainty analysis requires thousands of evaluations.
+
+A PINN represents the unknown fields with a differentiable neural network. During training, automatic differentiation evaluates the derivatives required by the governing equations. The loss contains both observation errors and residuals of the equations and boundary conditions. Once trained, the network evaluates the fields through a forward pass. The central question is whether this reduction can be achieved without losing the physical relationships that make the internal states meaningful.
+
+\section{Need for the Study}
+A purely data-driven network can be fast, but its reliability depends on the density and coverage of labelled data. Internal battery fields are rarely measured at the resolution required for training. Numerical solvers provide physically meaningful labels, yet generating large parameter sweeps is costly. A PINN can use a smaller number of labels because the differential equations constrain the shape and evolution of the learned fields.
+
+This project studies a tractable multi-physics case before attempting a full battery digital twin. Phase I uses constant-current discharge, one representative negative-electrode particle, a lumped temperature, and linear-elastic stress relations. These assumptions make it possible to inspect every residual and compare the surrogate with a reproducible PyBaMM reference. The limitations are stated explicitly: the model does not yet estimate degradation, state of health, or remaining useful life.
+
+\section{Problem Statement}
+The project aims to construct a computationally efficient surrogate for coupled electrochemical, thermal, and mechanical battery states. The model should accept position, time, discharge rate, and ambient temperature; produce continuous internal fields; respect the selected governing equations; generalise to held-out operating conditions; and run substantially faster than the numerical reference. The main technical difficulty is balancing data loss, diffusion and thermal residuals, boundary constraints, and stress consistency during optimisation.
+
+\section{Objectives}
+The objectives of Phase I are:
+\begin{enumerate}
+\item generate a controlled SPMe discharge dataset over a defined C-rate and temperature envelope;
+\item formulate diffusion, thermal, and spherical-particle mechanics constraints in differentiable form;
+\item train a multi-output PINN using sparse labels and collocation points;
+\item evaluate field accuracy, residual behaviour, generalisation, and computational speed on held-out conditions;
+\item export a reusable model and document the remaining errors; and
+\item define a Phase II plan that improves cross-field consistency and adds evidence before broader health claims.
+\end{enumerate}
+
+\section{Scope and Contributions}
+The completed pipeline includes PyBaMM simulation, condition-level dataset generation, normalization, collocation sampling, two-stage optimization, residual-adaptive refinement, field-level evaluation, figure generation, and deployment export. The main Phase I contribution is an end-to-end experimental workflow for studying multi-physics PINNs under controlled discharge conditions. The model is a research prototype rather than a certified BMS component.
+
+\begin{table}[htbp]
+\centering
+\caption{Phase I scope and status}
+\small
+\begin{tabularx}{\textwidth}{p{0.30\textwidth}X}
+\toprule
+Item & Phase I status\\
+\midrule
+Reference simulation & PyBaMM SPMe with lumped thermal coupling\\
+Operating regime & Constant-current discharge, 0.5C--2.0C\\
+Learned fields & Concentration, temperature, radial stress, tangential stress\\
+Evaluation & Held-out operating conditions, residuals, parity, timing\\
+Deployment & PyTorch checkpoint and standalone inference module\\
+Excluded claims & Experimental validation, degradation, SOH, RUL\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\chapter{Review of Literature}
+\section{Introduction}
+Physics-informed learning combines two sources of information: observations and mathematical structure. In battery research, this structure may enter as a differential-equation residual, an equivalent-circuit relation, a conservation penalty, a feature derived from physics, or a hybrid numerical-neural architecture. These choices are not equivalent. A useful literature review must identify the task, the source of physical information, the predicted variables, and the validation data.
+
+\section{Foundations of Physics-Informed Neural Networks}
+Raissi, Perdikaris, and Karniadakis formalised PINNs for forward and inverse differential-equation problems. Their method approximates a solution with a neural network and penalises the governing-equation residual at collocation points. Karniadakis and co-authors later placed PINNs within the broader field of physics-informed machine learning, which also includes operator learning, differentiable simulators, and hybrid models.
+
+PINNs are attractive because they provide continuous functions and can combine sparse labels with equations. They also have known difficulties. Loss terms may differ by several orders of magnitude, derivatives can be harder to learn than values, and optimisation may converge to a low data error while leaving a large residual in a small region. These issues are important for batteries because flux boundary conditions strongly influence concentration gradients and stress.
+
+\section{PINNs for Battery Modelling}
+Battery PINNs have been used for state estimation, parameter inference, degradation prognosis, and surrogate modelling. Hybrid Bayesian PINNs combine physical models with uncertainty estimation for prognosis. Other work estimates state of health from voltage, current, and physically motivated constraints. Hassanaly and co-authors developed SPM and P2D PINN surrogates for parameter inference and showed the importance of conservation regularisation and multi-fidelity training. More recent single-particle surrogates demonstrate that labelled data can be reduced when the diffusion equation and flux boundary are enforced accurately.
+
+The literature also shows that the word ``physics-informed'' covers different levels of fidelity. Some models use a complete PDE residual, while others add equivalent-circuit features or regularise a recurrent network with a simplified balance equation. This project therefore reports the exact residuals and the exact data source rather than treating the PINN label as sufficient evidence of physical validity.
+
+\section{Thermal and Mechanical Coupling}
+Thermal battery models range from one-node energy balances to three-dimensional pack simulations. A lumped model is appropriate when only volume-averaged temperature is available, but it cannot resolve radial or through-thickness temperature gradients. The present temperature output follows that limitation and is evaluated as a cell-average quantity.
+
+Mechanical stress in active particles arises when lithium concentration varies with radius. Cheng and Verbrugge derived analytical radial and tangential stress relations for a spherical insertion particle. These relations are computationally inexpensive and link stress to concentration through a radial integral. Phase I initially learned stress as network outputs constrained by equilibrium. The literature review motivated a later refinement in which stress is calculated directly from predicted concentration to remove cross-field ambiguity.
+
+\section{Distinction from Degradation Modelling}
+Mechanical state during one discharge is not the same as degradation over many cycles. Aging models require cycle history and mechanisms such as SEI growth, lithium plating, loss of active material, and cracking. Stress can influence some of these processes, but a single-discharge dataset cannot validate health or lifetime. The present report retains mechanics because it is supported by the concentration field and explicitly leaves degradation for a future dataset.
+
+\section{Literature Survey}
+\begin{longtable}{@{}>{\RaggedRight\arraybackslash}p{0.18\textwidth}>{\RaggedRight\arraybackslash}p{0.21\textwidth}>{\RaggedRight\arraybackslash}p{0.23\textwidth}>{\RaggedRight\arraybackslash}p{0.24\textwidth}@{}}
+\caption{Representative literature and the gap addressed in this project}\\
+\toprule
+Study & Main task & Physics used & Relevance or limitation\\
+\midrule
+\endfirsthead
+\toprule
+Study & Main task & Physics used & Relevance or limitation\\
+\midrule
+\endhead
+Raissi et al. (2019) & General PDE solution & Differential-equation residuals & Foundation; no battery-specific coupling\\
+Karniadakis et al. (2021) & Physics-informed ML review & Multiple hybrid strategies & Establishes broader design space\\
+Nascimento et al. (2023) & Battery prognosis & Bayesian physics-informed model & Focuses on aging, not spatial fields\\
+Hofmann et al. (2023) & SOH estimation & Battery relations in learning & Requires health labels\\
+Kim et al. (2023) & Thermal-runaway prediction & Multiphysics thermal model & Different safety regime\\
+Singh et al. (2023) & Battery state estimation & Hybrid state model and network & Limited particle mechanics\\
+Hassanaly et al. (2024) & SPM/P2D surrogate and parameters & Diffusion and conservation residuals & Closest electrochemical PINN reference\\
+Wang et al. (2024) & Electrochemical\newline parameters & Parallel PINN branches & Parameter estimation rather than stress fields\\
+Mendez-Corbacho et al. (2024) & Label-free SPM solution & Solid-diffusion physics & Does not study thermal-mechanical outputs\\
+Sulzer et al. (2021) & PyBaMM framework & Reproducible battery solvers & Provides the simulation environment\\
+\bottomrule
+\end{longtable}
+
+\section{Research Gap}
+Prior studies establish that battery PINNs can reproduce electrochemical or thermal behaviour, but fewer studies evaluate concentration, temperature, and particle stress together under a leakage-resistant condition split. A further gap is the consistency of outputs: a neural network can fit a stress label while its own concentration field implies a different stress. Phase I establishes the full pipeline and measures this limitation. Phase II will replace independent stress outputs with an analytical concentration-to-stress operator and compare the formulations under matched seeds and label budgets.
+
+\chapter{Methodology and System Design}
+\section{System Overview}
+The project workflow has four stages. First, PyBaMM solves a set of SPMe discharge cases and exports the internal variables required by the study. Second, preprocessing converts every trajectory to a common schema, performs the condition-level split, and stores scaling constants. Third, the PINN is trained with labelled observations and collocation points. Finally, the saved checkpoint is evaluated on untouched operating conditions and exported for stand-alone inference.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\textwidth]{architecture.png}
+\caption{Phase I PINN architecture and data flow}
+\label{fig:architecture}
+\end{figure}
+
+Figure~\ref{fig:architecture} shows the original Phase I model. The input vector contains radial coordinate, time, C-rate, and ambient temperature. A fully connected tanh network produces four fields: concentration, temperature, radial stress, and tangential stress. Automatic differentiation supplies spatial and temporal derivatives. Data, PDE, boundary, initial, and mechanical terms are combined in the objective. The trained network is then used without calling PyBaMM.
+
+\section{Ground-Truth Simulation}
+The numerical reference uses PyBaMM's SPMe with lumped thermal coupling. Twenty constant-current discharges span the selected C-rate and ambient-temperature envelope. Each simulation stops at the 2.5~V cut-off. The final dataset has 24 radial nodes and 90 time samples per condition, giving 2,160 samples per discharge and 43,200 rows overall.
+
+The exported columns include time, normalized radius, current condition, ambient temperature, negative-particle concentration, volume-averaged cell temperature, heat generation, interfacial current density, and the constants needed by the residuals. Radial and tangential stresses are generated by analytical post-processing because the selected PyBaMM configuration does not directly return those fields.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{dataset_overview.png}
+\caption{Ground-truth fields and condition-level dataset split}
+\label{fig:dataset}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\caption{Dataset composition and operating envelope}
+\small
+\begin{tabularx}{\textwidth}{p{0.37\textwidth}X}
+\toprule
+Property & Value\\
+\midrule
+Training C-rates & 0.5C, 1.0C, 1.5C, 2.0C\\
+Validation C-rates & 0.75C, 1.75C\\
+Test C-rate & 1.25C\\
+Training/validation ambient temperatures & $10^{\circ}$C, $25^{\circ}$C, $35^{\circ}$C\\
+Held-out ambient temperatures & $20^{\circ}$C and $30^{\circ}$C\\
+Radial and temporal nodes & 24 and 90 per condition\\
+Rows per trajectory / total rows & 2,160 / 43,200\\
+Voltage cut-off & 2.5 V\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Governing Equations}
+\subsection{Solid diffusion}
+The negative-electrode particle is approximated by a sphere of radius $R_p$. With spherical symmetry and constant solid diffusivity $D_s$, concentration satisfies
+\begin{equation}
+\frac{\partial c_s}{\partial t}=D_s\left(\frac{\partial^2c_s}{\partial r^2}+\frac{2}{r}\frac{\partial c_s}{\partial r}\right).
+\label{eq:diffusion_report}
+\end{equation}
+The center has zero gradient and the surface flux is related to interfacial current density:
+\begin{align}
+\left.\frac{\partial c_s}{\partial r}\right|_{r=0}&=0,\\
+-D_s\left.\frac{\partial c_s}{\partial r}\right|_{r=R_p}&=\frac{j_n(t)}{F}.
+\end{align}
+The first condition removes a nonphysical cusp at the particle center. The second is critical because it controls how rapidly the concentration profile develops during discharge.
+
+\subsection{Lumped thermal balance}
+The thermal reference contains one cell-average temperature. Its compatible energy balance is
+\begin{equation}
+\rho_{\mathrm{eff}}c_{p,\mathrm{eff}}\frac{dT}{dt}
+=q_{\mathrm{gen}}(t)-\frac{hA_{\mathrm{cool}}}{V_{\mathrm{cell}}}(T-T_{\mathrm{amb}}).
+\label{eq:thermal_report}
+\end{equation}
+The first term on the right represents volumetric heat generation and the second represents cooling to the surroundings. Since the reference is lumped, the temperature prediction is interpreted as a volume average rather than a spatial temperature map.
+
+\subsection{Diffusion-induced stress}
+For a linear-elastic spherical particle, define
+\begin{equation}
+\mathcal{A}(r,t)=\frac{1}{r^3}\int_0^r c_s(s,t)s^2\,ds,
+\qquad K=\frac{\Omega E}{3(1-\nu)}.
+\end{equation}
+The analytical stress components used to generate labels are
+\begin{align}
+\sigma_r(r,t)&=2K\left[\mathcal{A}(R_p,t)-\mathcal{A}(r,t)\right],\\
+\sigma_{\theta}(r,t)&=K\left[2\mathcal{A}(R_p,t)+\mathcal{A}(r,t)-c_s(r,t)\right].
+\end{align}
+Here $E$ is Young's modulus, $\nu$ is Poisson's ratio, and $\Omega$ is partial molar volume. These values are analytical indicators rather than direct stress measurements. The free surface satisfies $\sigma_r(R_p,t)=0$.
+
+\section{Non-Dimensionalisation}
+Inputs and outputs have very different numerical scales. Radius and time are mapped to approximately unit intervals. Concentration, temperature rise, and stress are scaled using constants calculated from the training subset. Physical units are restored before metrics are reported. Residuals are also scaled so that a term with large physical units does not dominate the gradient merely because of its numerical magnitude.
+
+Normalization parameters are fitted using training conditions only. Using extrema from validation or test trajectories would leak information about the held-out operating envelope. The code stores every scale beside the model checkpoint so that deployment uses the same transformation.
+
+\section{PINN Architecture}
+The Phase I model has a shared multilayer perceptron with five hidden layers of width 128 and tanh activations. It contains 67,210 trainable parameters. Smooth activations are used because second derivatives of concentration are required by Eq.~\eqref{eq:diffusion_report}. Four output channels represent $c_s$, $T$, $\sigma_r$, and $\sigma_{\theta}$.
+
+\begin{table}[htbp]
+\centering
+\caption{Phase I neural-network configuration}
+\small
+\begin{tabularx}{\textwidth}{p{0.40\textwidth}X}
+\toprule
+Component & Configuration\\
+\midrule
+Input variables & $r/R_p$, normalized time, C-rate, ambient temperature\\
+Hidden network & Five fully connected layers, 128 units each\\
+Activation & Hyperbolic tangent\\
+Output variables & $c_s$, $T$, $\sigma_r$, $\sigma_{\theta}$\\
+Trainable parameters & 67,210\\
+Precision & float32\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Hard-Constrained Outputs and Loss Function}
+Initial concentration and temperature are imposed through output transformations rather than learned only from penalty terms. The radial stress output is multiplied by a surface-distance factor so that the free-surface condition is satisfied. Hard constraints reduce the number of behaviours that the optimizer must discover from data.
+
+The composite objective is
+\begin{equation}
+\mathcal{L}=w_d\mathcal{L}_{\mathrm{data}}+w_c\mathcal{L}_{\mathrm{diff}}
++w_T\mathcal{L}_{\mathrm{thermal}}+w_b\mathcal{L}_{\mathrm{boundary}}
++w_m\mathcal{L}_{\mathrm{mechanical}}.
+\end{equation}
+The labelled term compares all four predicted fields with the PyBaMM-derived dataset. The diffusion and thermal terms evaluate Eqs.~\eqref{eq:diffusion_report} and \eqref{eq:thermal_report} at collocation points. Boundary terms enforce center symmetry and surface flux. Mechanical equilibrium constrains the two stress outputs. Adaptive weights are recorded during training because large weight changes are useful evidence of competing objectives.
+
+\section{Collocation and Labelled Sampling}
+For each training condition, 260 labelled points provide direct field supervision. A Latin-hypercube design supplies 1,600 interior collocation points, and each boundary contributes 200 points. The distribution covers time, radius, discharge rate, and ambient temperature rather than concentrating samples around a single trajectory.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{collocation.png}
+\caption{Interior, boundary, and labelled points for one operating condition}
+\label{fig:collocation}
+\end{figure}
+
+Condition-level splitting is used throughout. Randomly splitting neighbouring radius--time rows would allow nearly identical points from one numerical trajectory to appear in both training and testing, producing an optimistic generalisation estimate.
+
+\section{Training Strategy}
+Training begins with Adam for at most 6,000 epochs at a learning rate of $1.5\times10^{-3}$. Adam provides robust early progress on the multi-term loss. The planned second stage uses L-BFGS for up to 1,200 iterations to refine a checkpoint near a useful basin. Gradient norms, individual residuals, and adaptive weights are stored at each stage.
+
+Early stopping is based on validation behaviour, not the test set. The saved state includes the network weights, scaling constants, operating-condition metadata, and version information. A smoke test checks tensor shapes, finite residuals, boundary derivatives, and a complete forward-backward optimization step before a full run.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{training_loss.png}
+\caption{Adam and L-BFGS training histories with adaptive loss weights}
+\label{fig:training}
+\end{figure}
+
+\section{Residual-Adaptive Refinement}
+Uniform collocation can miss narrow regions of high residual. After the initial fit, a larger candidate pool is evaluated and the points with the largest scaled residual are added to training. Up to three rounds are configured, with 600 new points per round. Refinement is triggered when held-out concentration accuracy remains above the target.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\textwidth]{rar.png}
+\caption{Error and collocation growth during residual-adaptive refinement}
+\label{fig:rar}
+\end{figure}
+
+RAR concentrates effort where the current model violates the equations, but it cannot correct every problem. If a boundary penalty is underweighted, adding interior points may improve the PDE residual without fixing surface flux. The refinement history is therefore interpreted together with the per-term losses.
+
+\section{Evaluation Protocol}
+Evaluation uses only the final stored checkpoint. Each field is measured with RMSE, MAE, relative $L_2$ error, maximum absolute error, and $R^2$ where appropriate. Profiles and parity plots are inspected because a single aggregate number may hide local boundary errors. Physics residuals are recomputed independently on a dense grid.
+
+Inference timing compares 2,160 PINN query points with one PyBaMM SPMe discharge on the recorded hardware. Warm-up calls precede repeated timing blocks. Training time is not included in per-query latency; it is reported separately as an offline cost.
+
+\chapter{Implementation, Results and Discussion}
+\section{Implementation Environment}
+The recorded notebook environment uses Python, PyTorch 2.11.0+cu128, PyBaMM 26.8.0.0, NumPy 2.1.3, pandas, and Matplotlib on a CUDA-enabled Tesla T4. Data tables are exported in CSV, Parquet, SQLite, and Excel forms. The training notebook saves plots, metrics, checkpoints, and a deployment module so that evaluation does not depend on notebook state.
+
+\section{Dataset Generation and Splitting}
+All twenty SPMe discharges completed without solver failure. Figure~\ref{fig:dataset} shows the expected physical trends: faster discharges terminate earlier, higher C-rates produce larger temperature rise, and particle concentration develops a surface-to-core gradient. The split reserves complete conditions for validation and testing.
+
+\begin{table}[htbp]
+\centering
+\caption{Training configuration}
+\small
+\begin{tabularx}{\textwidth}{p{0.42\textwidth}X}
+\toprule
+Setting & Value\\
+\midrule
+Optimizer stages & Adam followed by configured L-BFGS\\
+Adam epochs / learning rate & 6,000 / $1.5\times10^{-3}$\\
+L-BFGS iterations & 1,200 configured\\
+Labelled points & 260 per training condition\\
+Interior collocation points & 1,600 per training condition\\
+Boundary points & 200 per boundary and condition\\
+RAR rounds / points & Up to 3 / 600 per round\\
+Random seed & 42\\
+Target concentration relative $L_2$ & 2\%\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Training Checks and Optimization Behaviour}
+The smoke test verified finite predictions and gradients before the full run. Adam reduced the composite objective rapidly during the first epochs and then entered a slower regime. L-BFGS supplied additional progress, although the concentration error remained well above the intended 2\% target. The adaptive weighting history shows that the optimiser assigned different emphasis to the loss components over time.
+
+The important observation is that a small total loss did not imply uniformly accurate fields. Temperature was learned extremely well, while concentration and stress retained larger errors. This imbalance is consistent with under-enforcement of the labelled concentration and surface-flux terms. The result motivates reporting every component rather than only the total objective.
+
+\section{Held-Out Field Validation}
+Figure~\ref{fig:fieldvalidation} compares the PINN with PyBaMM on the 1.25C, $20^{\circ}$C test condition. Temperature follows the reference closely. Concentration captures the broad discharge trend but shows a systematic offset and reduced radial contrast. Because stress labels depend on concentration gradients, these concentration errors propagate into both stress components.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{field_validation.png}
+\caption{Held-out concentration, temperature, and stress fields}
+\label{fig:fieldvalidation}
+\end{figure}
+
+The field plot is more informative than a single error value. It identifies where the surrogate departs from the reference and whether the difference is a global bias, a timing shift, or a boundary-localised error. The largest concentration discrepancy occurs near the particle surface, consistent with the flux-residual diagnosis.
+
+\section{Parity and Error Distribution}
+Parity plots compare predictions with references over all test points. Temperature values lie near the identity line, while concentration displays a systematic bias. Stress parity remains broadly linear but shows increased dispersion at larger tensile values. Error histograms confirm that temperature errors are narrow and that concentration and tangential-stress errors have heavier tails.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{parity.png}
+\caption{Parity plots and test-set error distributions}
+\label{fig:parity}
+\end{figure}
+
+\section{Generalisation Across the Operating Envelope}
+The condition heat maps in Fig.~\ref{fig:generalization} show that the model follows the main C-rate and ambient-temperature trends. Errors are not uniform. Higher rates are more difficult because they create stronger concentration gradients and shorter discharge times. The condition split therefore gives a more realistic estimate than a random row split.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\textwidth]{generalization.png}
+\caption{Field accuracy across training, validation, and test conditions}
+\label{fig:generalization}
+\end{figure}
+
+\section{Physics Residuals and Root-Cause Analysis}
+Dense-grid residual maps reveal where the learned fields violate the imposed equations. The largest Fickian residual occurs close to the surface and along time-dependent ridges. The mechanical-equilibrium residual also grows in regions where the stress gradients are steep.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\textwidth]{residuals.png}
+\caption{Dense-grid diffusion and mechanical residual maps}
+\label{fig:residuals}
+\end{figure}
+
+These maps support a specific diagnosis. Temperature accuracy indicates that the thermal branch and its scale are adequate for the present data. Concentration error is associated with the surface flux and labelled-data balance. Since Phase I learns stress independently, the stress fields can also drift from the concentration field even when mechanical equilibrium is approximately satisfied. This observation led to the concentration-derived stress design proposed for Phase II.
+
+\section{Final Test-Set Metrics}
+\begin{table}[htbp]
+\centering
+\caption{Recorded Phase I test-set metrics}
+\small
+\begin{tabularx}{\textwidth}{p{0.30\textwidth}X X X}
+\toprule
+Field & Relative $L_2$ & $R^2$ & Interpretation\\
+\midrule
+Concentration & 28.50\% & 0.91214 & Main accuracy gap\\
+Temperature & 0.03\% & 0.99938 & Excellent agreement\\
+Radial stress & 18.90\% & 0.82044 & Trend captured; bias remains\\
+Tangential stress & 25.10\% & 0.99970 & High correlation; magnitude error remains\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The $R^2$ and relative error answer different questions. A high $R^2$ means that variation is tracked, while a sizeable relative error can still indicate biased magnitude. Both must be reported. The current results are sufficient to demonstrate a working surrogate pipeline, but they do not meet the original concentration target.
+
+\section{Residual-Adaptive Ablation}
+The RAR rounds increased the concentration-focused collocation set and improved the highest-residual regions, but the final concentration error remained far above 2\%. Temperature and stress metrics changed little. This shows that point placement alone is not the limiting factor. Loss weighting, boundary enforcement, and architecture require revision.
+
+\section{Inference Benchmark}
+The PINN evaluated 2,160 field points in approximately 0.71~ms on the Tesla T4. The recorded PyBaMM SPMe discharge required 464~ms under the comparison protocol. The ratio is approximately $657\times$ in favour of the trained surrogate.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.86\textwidth]{inference.png}
+\caption{Recorded inference-time comparison between PyBaMM and the PINN}
+\label{fig:inference}
+\end{figure}
+
+This speed-up is meaningful only for the tested batch, hardware, precision, and solver configuration. It does not include offline data generation or training. A deployment study should repeat the benchmark on the intended processor and measure memory, quantisation effects, and warm-start behaviour.
+
+\section{Deployment Export}
+The trained checkpoint is exported with its scaling constants and operating metadata. A separate inference module accepts physical-unit inputs and returns concentration, temperature, radial stress, and tangential stress without importing PyBaMM. A round-trip test confirms that exported predictions match the notebook model. The checkpoint is approximately 290~KB.
+
+\section{Performance Scorecard}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\textwidth]{scorecard.png}
+\caption{Phase I accuracy, variance, speed, and implementation scorecard}
+\label{fig:scorecard}
+\end{figure}
+
+The scorecard gives a balanced view. The model is fast and its temperature prediction is strong. Concentration and stress require improvement, and the current mechanics layer does not guarantee that predicted stress arises from predicted concentration. Reporting both strengths and failures prevents the inference benchmark from obscuring the scientific limitations.
+
+\section{Discussion}
+Phase I demonstrates that a differentiable multi-field surrogate can be trained and exported for rapid inference. It also shows why physical residuals must be interpreted carefully. A network can reduce a global objective while retaining important local violations. In this experiment, the surface-flux region controls concentration gradients, so an underweighted boundary term affects both electrochemical and mechanical outputs.
+
+The next architecture will use separate concentration and lumped-temperature subnetworks and compute stress analytically from concentration. This design has fewer independent outputs and enforces cross-field consistency by construction. A matched comparison with the data-only and prior-style PINN is required to determine whether the structural change improves predictive accuracy or only removes one form of inconsistency.
+
+\chapter{Conclusion and Future Work}
+\section{Conclusion}
+This Phase I project created an end-to-end PINN workflow for electrochemical, thermal, and mechanical fields during lithium-ion cell discharge. PyBaMM generated a controlled SPMe dataset, the PINN incorporated diffusion, energy-balance, boundary, and mechanical constraints, and the resulting model was evaluated on complete held-out operating conditions.
+
+The recorded results show two clear outcomes. First, the surrogate provides very fast inference and highly accurate cell-average temperature. Second, concentration and stress accuracy remain insufficient for a strong predictive claim. Residual maps and training histories trace much of the error to the surface flux, loss balance, and the use of independent stress outputs. These findings define a concrete Phase II research plan rather than a vague extension.
+
+\section{Current Status}
+\begin{table}[htbp]
+\centering
+\caption{Phase I completion status}
+\small
+\begin{tabularx}{\textwidth}{p{0.44\textwidth}X}
+\toprule
+Deliverable & Status\\
+\midrule
+PyBaMM simulation and dataset export & Completed\\
+PINN residual implementation and smoke tests & Completed\\
+Two-stage optimization and RAR & Completed\\
+Held-out field evaluation and timing & Completed\\
+Checkpoint and inference-module export & Completed\\
+Concentration-derived stress redesign & Implemented for controlled Phase II study\\
+Experimental cell validation & Not yet completed\\
+Cycle-aging and SOH modelling & Outside Phase I scope\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Limitations}
+All labels are simulated, and agreement with SPMe is not experimental validation. The model assumes one representative negative-electrode particle, constant-current discharge, one cell-average temperature, fixed material parameters, and linear-elastic mechanics. It does not capture through-cell thermal gradients, heterogeneous electrode stress, plasticity, binder effects, fracture initiation, two-way stress--diffusion coupling, charging, drive cycles, or cell-to-cell variation.
+
+The timing result is hardware-specific. The stress calculation uses assumed elastic constants rather than parameters calibrated to the exact cell. The current training uses one primary seed for the reported Phase I model, so uncertainty across initialisation remains to be measured in the full controlled experiment.
+
+\section{Future Work}
+Phase II will first complete a three-model comparison: data-only, prior-style PINN, and the physics-consistent concentration-derived stress model. Label budgets of 50, 150, and 300 points per training condition and seeds 11, 22, and 33 will measure sample efficiency and run-to-run variation. Metrics will include field errors, surface concentration, peak stress, mass conservation, concentration--stress consistency, and inference latency.
+
+Later work will introduce dynamic current profiles, charging, parameter uncertainty, and experimental voltage and temperature data. Degradation mechanisms will be added only when cycling, capacity, and health targets are available. An embedded evaluation will measure CPU latency, memory, and reduced-precision error.
+
+\begin{table}[htbp]
+\centering
+\caption{Planned Phase II work schedule}
+\small
+\begin{tabularx}{\textwidth}{p{0.20\textwidth}p{0.28\textwidth}X}
+\toprule
+Period & Activity & Output\\
+\midrule
+Weeks 1--2 & Freeze datasets and condition splits & Versioned data and metadata\\
+Weeks 3--5 & Run three-model, three-seed experiment & Complete checkpoints and histories\\
+Weeks 6--7 & Aggregate metrics and sensitivity tests & Tables, plots, uncertainty summary\\
+Weeks 8--9 & Add dynamic-current experiments & Generalisation assessment\\
+Weeks 10--11 & Deployment and robustness checks & CPU timing and failure analysis\\
+Week 12 & Final documentation and presentation & Final report, paper, and demonstration\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\chapter*{References}
+\addcontentsline{toc}{chapter}{References}
+\begin{thebibliography}{99}
+\bibitem{raissi2019} M. Raissi, P. Perdikaris, and G. E. Karniadakis, ``Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations,'' \emph{Journal of Computational Physics}, vol. 378, pp. 686--707, 2019.
+\bibitem{karniadakis2021} G. E. Karniadakis, I. G. Kevrekidis, L. Lu, P. Perdikaris, S. Wang, and L. Yang, ``Physics-informed machine learning,'' \emph{Nature Reviews Physics}, vol. 3, pp. 422--440, 2021.
+\bibitem{nascimento2023} R. G. Nascimento, F. A. C. Viana, M. Corbetta, and C. S. Kulkarni, ``A framework for Li-ion battery prognosis based on hybrid Bayesian physics-informed neural networks,'' \emph{Scientific Reports}, vol. 13, art. 13856, 2023.
+\bibitem{hofmann2023} T. Hofmann, J. Hamar, M. Rogge, C. Zoerr, S. Erhard, and J. P. Schmidt, ``Physics-informed neural networks for state of health estimation in lithium-ion batteries,'' \emph{Journal of The Electrochemical Society}, vol. 170, art. 090524, 2023.
+\bibitem{wang2024} F. Wang, Z. Zhai, Z. Zhao, Y. Di, and X. Chen, ``Physics-informed neural network for lithium-ion battery degradation stable modeling and prognosis,'' \emph{Nature Communications}, vol. 15, art. 4332, 2024.
+\bibitem{kim2023} S. W. Kim, E. Kwak, J.-H. Kim, K.-Y. Oh, and S. Lee, ``Modeling and prediction of lithium-ion battery thermal runaway via multiphysics-informed neural network,'' \emph{Journal of Energy Storage}, vol. 60, art. 106654, 2023.
+\bibitem{singh2023} S. Singh, Y. E. Ebongue, S. Rezaei, et al., ``Hybrid modeling of lithium-ion battery: physics-informed neural network for battery state estimation,'' \emph{Batteries}, vol. 9, no. 6, art. 301, 2023.
+\bibitem{hassanaly2024a} M. Hassanaly et al., ``PINN surrogate of Li-ion battery models for parameter inference, Part I: Implementation and multi-fidelity hierarchies for the single-particle model,'' \emph{Journal of Energy Storage}, vol. 98, art. 113103, 2024.
+\bibitem{hassanaly2024b} M. Hassanaly et al., ``PINN surrogate of Li-ion battery models for parameter inference, Part II: Regularization and application of the pseudo-2D model,'' \emph{Journal of Energy Storage}, vol. 98, art. 113104, 2024.
+\bibitem{mendez2024} F. J. Mendez-Corbacho et al., ``Physics-informed neural networks for modeling Li-ion batteries: solving the single particle model without labeled data,'' \emph{Journal of The Electrochemical Society}, vol. 171, no. 11, art. 110534, 2024.
+\bibitem{pybamm2021} V. Sulzer, S. G. Marquis, R. Timms, M. Robinson, and S. J. Chapman, ``Python Battery Mathematical Modelling (PyBaMM),'' \emph{Journal of Open Research Software}, vol. 9, art. 14, 2021.
+\bibitem{cheng2009} Y.-T. Cheng and M. W. Verbrugge, ``Evolution of stress within a spherical insertion electrode particle under potentiostatic and galvanostatic operation,'' \emph{Journal of Power Sources}, vol. 190, pp. 453--460, 2009.
+\bibitem{deepxde2021} L. Lu, X. Meng, Z. Mao, and G. E. Karniadakis, ``DeepXDE: A deep learning library for solving differential equations,'' \emph{SIAM Review}, vol. 63, no. 1, pp. 208--228, 2021.
+\bibitem{doyle1993} M. Doyle, T. F. Fuller, and J. Newman, ``Modeling of galvanostatic charge and discharge of the lithium/polymer/insertion cell,'' \emph{Journal of The Electrochemical Society}, vol. 140, no. 6, pp. 1526--1533, 1993.
+\bibitem{marquis2019} S. G. Marquis, V. Sulzer, R. Timms, C. P. Please, and S. J. Chapman, ``An asymptotic derivation of a single particle model with electrolyte,'' \emph{Journal of The Electrochemical Society}, vol. 166, no. 15, pp. A3693--A3706, 2019.
+\end{thebibliography}
+
+\appendix
+\chapter{Configuration and Reproducibility}
+The master configuration is reproduced in Table~\ref{tab:appendixconfig}. The condition-level split and fixed random seed allow the recorded Phase I experiment to be repeated. A future archive should include the source code, environment lock file, raw configuration, dataset hash, and checkpoint hash.
+
+\begin{longtable}{p{0.43\textwidth}p{0.47\textwidth}}
+\caption{Master Phase I configuration}\label{tab:appendixconfig}\\
+\toprule
+Configuration item & Value\\
+\midrule
+Training C-rates & 0.5, 1.0, 1.5, 2.0C\\
+Validation C-rates & 0.75, 1.75C\\
+Test C-rate & 1.25C\\
+Ambient temperatures & 10, 20, 25, 30, 35$^{\circ}$C across splits\\
+Radial / temporal nodes & 24 / 90\\
+Hidden width / depth & 128 / 5\\
+Interior / boundary points & 1,600 / 200 per boundary per condition\\
+Labelled points & 260 per training condition\\
+Adam epochs / learning rate & 6,000 / $1.5\times10^{-3}$\\
+L-BFGS iterations & 1,200 configured\\
+RAR rounds / points per round & 3 / 600\\
+Random seed / data type & 42 / float32\\
+\bottomrule
+\end{longtable}
+
+\chapter{Project Artifacts}
+\begin{longtable}{p{0.34\textwidth}p{0.56\textwidth}}
+\caption{Phase I project artifacts}\\
+\toprule
+Artifact & Purpose\\
+\midrule
+\path{dataset.csv} / \path{dataset.xlsx} & Canonical data and readable workbook\\
+\path{metadata.json} & Condition constants and dataset metadata\\
+\path{pinn_model.pt} & Network weights, scales, and conditions\\
+\path{pinn_inference.py} & Stand-alone physical-unit inference module\\
+\path{metrics_per_condition.csv} & Field metrics for each condition\\
+\path{metrics_summary.csv} & Aggregate and worst-case metrics\\
+\path{finetuning_log.csv} & RAR history and selected points\\
+\texttt{training\_history.csv} & Objective terms and adaptive weights\\
+Figures 1--11 & Dataset, training, validation, residual, timing, and scorecard plots\\
+\bottomrule
+\end{longtable}
+
+\chapter{Evaluation Metric Definitions}
+For reference values $y_i$ and predictions $\widehat y_i$ over $N$ points,
+\begin{align}
+\mathrm{RMSE}&=\sqrt{\frac{1}{N}\sum_{i=1}^{N}(\widehat y_i-y_i)^2},\\
+\mathrm{MAE}&=\frac{1}{N}\sum_{i=1}^{N}|\widehat y_i-y_i|,\\
+\mathrm{Relative}\ L_2&=\frac{\|\widehat{\mathbf y}-\mathbf y\|_2}{\|\mathbf y\|_2},\\
+R^2&=1-\frac{\sum_i(\widehat y_i-y_i)^2}{\sum_i(y_i-\bar y)^2}.
+\end{align}
+These metrics must be interpreted together. RMSE preserves physical units, relative $L_2$ compares whole fields, and $R^2$ measures explained variation. Maximum absolute error and condition-specific plots are retained because averages can hide a local boundary failure.
+
+\end{document}
+

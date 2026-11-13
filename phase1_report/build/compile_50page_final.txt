@@ -1,0 +1,327 @@
+note: "version 2" Tectonic command-line interface activated
+note: Running TeX ...
+Fontconfig error: Cannot load default config file: No such file: (null)
+warning: hyperref.sty:4873: Requested font "pzdr" at 0.00002pt
+warning: hyperref.sty:4873:  -> pzdr
+warning: main.tex:59: 
+Requested font "[TeXGyreTermesX-Regular.otf]/OT" at 14.39996pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Regular.otf]/OT" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Italic.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Slanted.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-BoldItalic.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-BoldSlanted.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 14.4pt
+warning: main.tex:69: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 14.4pt
+warning: main.tex:69: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 18.0pt
+warning: main.tex:71: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 16.0pt
+warning: main.tex:73: Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 14.0pt
+warning: main.tex:109: 
+Requested font "ntx-Regular-tlf-ot1" at 14.4pt
+warning: main.tex:109:  -> ntx-Regular-tlf-ot1
+warning: main.tex:109: Requested font "ntx-Regular-tlf-ot1" at 10.5pt
+warning: main.tex:109:  -> ntx-Regular-tlf-ot1
+warning: main.tex:109: Requested font "ntx-Regular-tlf-ot1" at 7.9pt
+warning: main.tex:109:  -> ntx-Regular-tlf-ot1
+warning: main.tex:109: Requested font "ntxmi" at 14.4pt
+warning: main.tex:109:  -> ntxmi
+warning: main.tex:109: Requested font "ntxmi" at 10.5pt
+warning: main.tex:109:  -> ntxmi
+warning: main.tex:109: Requested font "ntxmi7" at 7.9pt
+warning: main.tex:109:  -> ntxmi7
+warning: main.tex:109: Requested font "ntxsy" at 14.4pt
+warning: main.tex:109:  -> ntxsy
+warning: main.tex:109: Requested font "ntxsy" at 10.5pt
+warning: main.tex:109:  -> ntxsy
+warning: main.tex:109: Requested font "ntxsy7" at 7.9pt
+warning: main.tex:109:  -> ntxsy7
+warning: main.tex:109: Requested font "ntxexx" at 14.4pt
+warning: main.tex:109:  -> ntxexx
+warning: main.tex:109: Requested font "ntxexx" at 10.5pt
+warning: main.tex:109:  -> ntxexx
+warning: main.tex:109: Requested font "ntxexx" at 7.9pt
+warning: main.tex:109:  -> ntxexx
+warning: main.tex:109: 
+Requested font "ntxmia" at 14.4pt
+warning: main.tex:109:  -> ntxmia
+warning: main.tex:109: Requested font "ntxmia" at 10.5pt
+warning: main.tex:109:  -> ntxmia
+warning: main.tex:109: Requested font "ntxmia" at 7.9pt
+warning: main.tex:109:  -> ntxmia
+warning: main.tex:109: 
+Requested font "ntxsym" at 14.4pt
+warning: main.tex:109:  -> ntxsym
+warning: main.tex:109: Requested font "ntxsym" at 10.5pt
+warning: main.tex:109:  -> ntxsym
+warning: main.tex:109: Requested font "ntxsym" at 7.9pt
+warning: main.tex:109:  -> ntxsym
+warning: main.tex:109: 
+Requested font "ntxsyc" at 14.4pt
+warning: main.tex:109:  -> ntxsyc
+warning: main.tex:109: Requested font "ntxsyc" at 10.5pt
+warning: main.tex:109:  -> ntxsyc
+warning: main.tex:109: Requested font "ntxsyc" at 7.9pt
+warning: main.tex:109:  -> ntxsyc
+warning: main.tex:109: Requested font "ntxexa" at 14.4pt
+warning: main.tex:109:  -> ntxexa
+warning: main.tex:109: Requested font "ntxexa" at 10.5pt
+warning: main.tex:109:  -> ntxexa
+warning: main.tex:109: Requested font "ntxexa" at 7.9pt
+warning: main.tex:109:  -> ntxexa
+warning: main.tex:109: Underfull \hbox (badness 2707) in paragraph at lines 109--109
+warning: main.tex:109: Underfull \hbox (badness 2707) in paragraph at lines 109--109
+warning: main.tex:130: Underfull \hbox (badness 1297) in paragraph at lines 129--130
+warning: main.tex:134: Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 12.0pt
+warning: main.tex:160: Requested font "ntx-Regular-tlf-ot1" at 12.0pt
+warning: main.tex:160:  -> ntx-Regular-tlf-ot1
+warning: main.tex:160: Requested font "ntx-Regular-tlf-ot1" at 8.8pt
+warning: main.tex:160:  -> ntx-Regular-tlf-ot1
+warning: main.tex:160: Requested font "ntx-Regular-tlf-ot1" at 6.6pt
+warning: main.tex:160:  -> ntx-Regular-tlf-ot1
+warning: main.tex:160: Requested font "ntxmi" at 12.0pt
+warning: main.tex:160:  -> ntxmi
+warning: main.tex:160: Requested font "ntxmi" at 8.8pt
+warning: main.tex:160:  -> ntxmi
+warning: main.tex:160: Requested font "ntxmi7" at 6.6pt
+warning: main.tex:160:  -> ntxmi7
+warning: main.tex:160: Requested font "ntxsy" at 12.0pt
+warning: main.tex:160:  -> ntxsy
+warning: main.tex:160: Requested font "ntxsy" at 8.8pt
+warning: main.tex:160:  -> ntxsy
+warning: main.tex:160: Requested font "ntxsy7" at 6.6pt
+warning: main.tex:160:  -> ntxsy7
+warning: main.tex:160: Requested font "ntxexx" at 12.0pt
+warning: main.tex:160:  -> ntxexx
+warning: main.tex:160: Requested font "ntxexx" at 8.8pt
+warning: main.tex:160:  -> ntxexx
+warning: main.tex:160: Requested font "ntxexx" at 6.6pt
+warning: main.tex:160:  -> ntxexx
+warning: main.tex:160: Requested font "ntxmia" at 12.0pt
+warning: main.tex:160:  -> ntxmia
+warning: main.tex:160: Requested font "ntxmia" at 8.8pt
+warning: main.tex:160:  -> ntxmia
+warning: main.tex:160: Requested font "ntxmia" at 6.6pt
+warning: main.tex:160:  -> ntxmia
+warning: main.tex:160: Requested font "ntxsym" at 12.0pt
+warning: main.tex:160:  -> ntxsym
+warning: main.tex:160: Requested font "ntxsym" at 8.8pt
+warning: main.tex:160:  -> ntxsym
+warning: main.tex:160: Requested font "ntxsym" at 6.6pt
+warning: main.tex:160:  -> ntxsym
+warning: main.tex:160: Requested font "ntxsyc" at 12.0pt
+warning: main.tex:160:  -> ntxsyc
+warning: main.tex:160: Requested font "ntxsyc" at 8.8pt
+warning: main.tex:160:  -> ntxsyc
+warning: main.tex:160: Requested font "ntxsyc" at 6.6pt
+warning: main.tex:160:  -> ntxsyc
+warning: main.tex:160: Requested font "ntxexa" at 12.0pt
+warning: main.tex:160:  -> ntxexa
+warning: main.tex:160: Requested font "ntxexa" at 8.8pt
+warning: main.tex:160:  -> ntxexa
+warning: main.tex:160: Requested font "ntxexa" at 6.6pt
+warning: main.tex:160:  -> ntxexa
+warning: main.tex:160: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 12.0pt
+warning: main.tex:194: Underfull \hbox (badness 10000) in paragraph at lines 193--194
+warning: main.tex:215: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 14.0pt
+warning: main.tex:238: Underfull \hbox (badness 1609) in paragraph at lines 237--238
+warning: main.tex:247: Underfull \hbox (badness 3977) in paragraph at lines 246--247
+warning: main.tex:247: Underfull \hbox (badness 1314) in paragraph at lines 246--247
+warning: main.tex:286: Underfull \hbox (badness 1874) in paragraph at lines 285--286
+warning: main.tex:286: Underfull \hbox (badness 1281) in paragraph at lines 285--286
+warning: main.tex:286: Underfull \hbox (badness 1137) in paragraph at lines 285--286
+warning: main.tex:288: Underfull \hbox (badness 1590) in paragraph at lines 287--288
+warning: main.tex:342: Underfull \hbox (badness 1762) in paragraph at lines 341--342
+warning: main.tex:369: Underfull \hbox (badness 2856) in paragraph at lines 369--369
+warning: main.tex:584: Underfull \hbox (badness 10000) in paragraph at lines 584--584
+warning: main.tex:584: Underfull \hbox (badness 10000) in paragraph at lines 584--584
+warning: main.tex:584: Underfull \hbox (badness 10000) in paragraph at lines 584--584
+warning: main.tex:584: Underfull \hbox (badness 10000) in paragraph at lines 584--584
+warning: main.tex:622: Underfull \hbox (badness 4752) in paragraph at lines 621--622
+warning: main.tex:654: Underfull \hbox (badness 1270) in paragraph at lines 653--654
+warning: main.tex:678: Underfull \hbox (badness 4660) in paragraph at lines 678--678
+warning: main.tex:678: Underfull \hbox (badness 10000) in paragraph at lines 678--678
+warning: main.tex:678: Underfull \hbox (badness 4713) in paragraph at lines 678--678
+warning: main.tex:678: Underfull \hbox (badness 1675) in paragraph at lines 678--678
+warning: main.tex:686: Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 10.5pt
+warning: main.tex:690: Requested font "[TeXGyreTermesX-Italic.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 14.4pt
+warning: main.tex:691: Underfull \hbox (badness 10000) in paragraph at lines 690--691
+warning: main.tex:691: Underfull \hbox (badness 10000) in paragraph at lines 690--691
+warning: main.tex:694: Underfull \hbox (badness 10000) in paragraph at lines 693--694
+warning: main.tex:694: Underfull \hbox (badness 10000) in paragraph at lines 693--694
+warning: main.tex:700: Underfull \hbox (badness 6001) in paragraph at lines 699--700
+warning: main.tex:748: Requested font "[lmmono12-regular]:" at 12.0pt
+warning: main.tex:765: Requested font "ntx-Bold-tlf-ot1" at 14.4pt
+warning: main.tex:765:  -> ntx-Bold-tlf-ot1
+warning: main.tex:765: Requested font "ntx-Bold-tlf-ot1" at 10.5pt
+warning: main.tex:765:  -> ntx-Bold-tlf-ot1
+warning: main.tex:765: Requested font "ntx-Bold-tlf-ot1" at 7.9pt
+warning: main.tex:765:  -> ntx-Bold-tlf-ot1
+warning: Trying to include PDF file with version (1.7), which is newer than current output PDF setting (1.5).
+note: Rerunning TeX because "main.aux" changed ...
+warning: hyperref.sty:4873: Requested font "pzdr" at 0.00002pt
+warning: hyperref.sty:4873:  -> pzdr
+warning: main.tex:59: 
+Requested font "[TeXGyreTermesX-Regular.otf]/OT" at 14.39996pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Regular.otf]/OT" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Italic.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Slanted.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-BoldItalic.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-BoldSlanted.otf]/OT:script=latn;language=dflt;" at 14.40002pt
+warning: main.tex:59: Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 14.4pt
+warning: main.tex:69: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 14.4pt
+warning: main.tex:69: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 18.0pt
+warning: main.tex:71: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 16.0pt
+warning: main.tex:73: Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 14.0pt
+warning: main.tex:109: 
+Requested font "ntx-Regular-tlf-ot1" at 14.4pt
+warning: main.tex:109:  -> ntx-Regular-tlf-ot1
+warning: main.tex:109: Requested font "ntx-Regular-tlf-ot1" at 10.5pt
+warning: main.tex:109:  -> ntx-Regular-tlf-ot1
+warning: main.tex:109: Requested font "ntx-Regular-tlf-ot1" at 7.9pt
+warning: main.tex:109:  -> ntx-Regular-tlf-ot1
+warning: main.tex:109: Requested font "ntxmi" at 14.4pt
+warning: main.tex:109:  -> ntxmi
+warning: main.tex:109: Requested font "ntxmi" at 10.5pt
+warning: main.tex:109:  -> ntxmi
+warning: main.tex:109: Requested font "ntxmi7" at 7.9pt
+warning: main.tex:109:  -> ntxmi7
+warning: main.tex:109: Requested font "ntxsy" at 14.4pt
+warning: main.tex:109:  -> ntxsy
+warning: main.tex:109: Requested font "ntxsy" at 10.5pt
+warning: main.tex:109:  -> ntxsy
+warning: main.tex:109: Requested font "ntxsy7" at 7.9pt
+warning: main.tex:109:  -> ntxsy7
+warning: main.tex:109: Requested font "ntxexx" at 14.4pt
+warning: main.tex:109:  -> ntxexx
+warning: main.tex:109: Requested font "ntxexx" at 10.5pt
+warning: main.tex:109:  -> ntxexx
+warning: main.tex:109: Requested font "ntxexx" at 7.9pt
+warning: main.tex:109:  -> ntxexx
+warning: main.tex:109: 
+Requested font "ntxmia" at 14.4pt
+warning: main.tex:109:  -> ntxmia
+warning: main.tex:109: Requested font "ntxmia" at 10.5pt
+warning: main.tex:109:  -> ntxmia
+warning: main.tex:109: Requested font "ntxmia" at 7.9pt
+warning: main.tex:109:  -> ntxmia
+warning: main.tex:109: 
+Requested font "ntxsym" at 14.4pt
+warning: main.tex:109:  -> ntxsym
+warning: main.tex:109: Requested font "ntxsym" at 10.5pt
+warning: main.tex:109:  -> ntxsym
+warning: main.tex:109: Requested font "ntxsym" at 7.9pt
+warning: main.tex:109:  -> ntxsym
+warning: main.tex:109: 
+Requested font "ntxsyc" at 14.4pt
+warning: main.tex:109:  -> ntxsyc
+warning: main.tex:109: Requested font "ntxsyc" at 10.5pt
+warning: main.tex:109:  -> ntxsyc
+warning: main.tex:109: Requested font "ntxsyc" at 7.9pt
+warning: main.tex:109:  -> ntxsyc
+warning: main.tex:109: Requested font "ntxexa" at 14.4pt
+warning: main.tex:109:  -> ntxexa
+warning: main.tex:109: Requested font "ntxexa" at 10.5pt
+warning: main.tex:109:  -> ntxexa
+warning: main.tex:109: Requested font "ntxexa" at 7.9pt
+warning: main.tex:109:  -> ntxexa
+warning: main.tex:109: Underfull \hbox (badness 2707) in paragraph at lines 109--109
+warning: main.tex:109: Underfull \hbox (badness 2707) in paragraph at lines 109--109
+warning: main.tex:130: Underfull \hbox (badness 1297) in paragraph at lines 129--130
+warning: main.tex:134: Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 12.0pt
+warning: main.tex:160: Requested font "ntx-Regular-tlf-ot1" at 12.0pt
+warning: main.tex:160:  -> ntx-Regular-tlf-ot1
+warning: main.tex:160: Requested font "ntx-Regular-tlf-ot1" at 8.8pt
+warning: main.tex:160:  -> ntx-Regular-tlf-ot1
+warning: main.tex:160: Requested font "ntx-Regular-tlf-ot1" at 6.6pt
+warning: main.tex:160:  -> ntx-Regular-tlf-ot1
+warning: main.tex:160: Requested font "ntxmi" at 12.0pt
+warning: main.tex:160:  -> ntxmi
+warning: main.tex:160: Requested font "ntxmi" at 8.8pt
+warning: main.tex:160:  -> ntxmi
+warning: main.tex:160: Requested font "ntxmi7" at 6.6pt
+warning: main.tex:160:  -> ntxmi7
+warning: main.tex:160: Requested font "ntxsy" at 12.0pt
+warning: main.tex:160:  -> ntxsy
+warning: main.tex:160: Requested font "ntxsy" at 8.8pt
+warning: main.tex:160:  -> ntxsy
+warning: main.tex:160: Requested font "ntxsy7" at 6.6pt
+warning: main.tex:160:  -> ntxsy7
+warning: main.tex:160: Requested font "ntxexx" at 12.0pt
+warning: main.tex:160:  -> ntxexx
+warning: main.tex:160: Requested font "ntxexx" at 8.8pt
+warning: main.tex:160:  -> ntxexx
+warning: main.tex:160: Requested font "ntxexx" at 6.6pt
+warning: main.tex:160:  -> ntxexx
+warning: main.tex:160: Requested font "ntxmia" at 12.0pt
+warning: main.tex:160:  -> ntxmia
+warning: main.tex:160: Requested font "ntxmia" at 8.8pt
+warning: main.tex:160:  -> ntxmia
+warning: main.tex:160: Requested font "ntxmia" at 6.6pt
+warning: main.tex:160:  -> ntxmia
+warning: main.tex:160: Requested font "ntxsym" at 12.0pt
+warning: main.tex:160:  -> ntxsym
+warning: main.tex:160: Requested font "ntxsym" at 8.8pt
+warning: main.tex:160:  -> ntxsym
+warning: main.tex:160: Requested font "ntxsym" at 6.6pt
+warning: main.tex:160:  -> ntxsym
+warning: main.tex:160: Requested font "ntxsyc" at 12.0pt
+warning: main.tex:160:  -> ntxsyc
+warning: main.tex:160: Requested font "ntxsyc" at 8.8pt
+warning: main.tex:160:  -> ntxsyc
+warning: main.tex:160: Requested font "ntxsyc" at 6.6pt
+warning: main.tex:160:  -> ntxsyc
+warning: main.tex:160: Requested font "ntxexa" at 12.0pt
+warning: main.tex:160:  -> ntxexa
+warning: main.tex:160: Requested font "ntxexa" at 8.8pt
+warning: main.tex:160:  -> ntxexa
+warning: main.tex:160: Requested font "ntxexa" at 6.6pt
+warning: main.tex:160:  -> ntxexa
+warning: main.tex:160: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 12.0pt
+warning: main.tex:194: Underfull \hbox (badness 10000) in paragraph at lines 193--194
+warning: main.tex:215: Requested font "[TeXGyreTermesX-Bold.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 14.0pt
+warning: main.tex:238: Underfull \hbox (badness 1609) in paragraph at lines 237--238
+warning: main.tex:247: Underfull \hbox (badness 3977) in paragraph at lines 246--247
+warning: main.tex:247: Underfull \hbox (badness 1314) in paragraph at lines 246--247
+warning: main.tex:286: Underfull \hbox (badness 1874) in paragraph at lines 285--286
+warning: main.tex:286: Underfull \hbox (badness 1281) in paragraph at lines 285--286
+warning: main.tex:286: Underfull \hbox (badness 1137) in paragraph at lines 285--286
+warning: main.tex:288: Underfull \hbox (badness 1590) in paragraph at lines 287--288
+warning: main.tex:342: Underfull \hbox (badness 1762) in paragraph at lines 341--342
+warning: main.tex:369: Underfull \hbox (badness 2856) in paragraph at lines 369--369
+warning: main.tex:584: Underfull \hbox (badness 10000) in paragraph at lines 584--584
+warning: main.tex:584: Underfull \hbox (badness 10000) in paragraph at lines 584--584
+warning: main.tex:584: Underfull \hbox (badness 10000) in paragraph at lines 584--584
+warning: main.tex:584: Underfull \hbox (badness 10000) in paragraph at lines 584--584
+warning: main.tex:622: Underfull \hbox (badness 4752) in paragraph at lines 621--622
+warning: main.tex:654: Underfull \hbox (badness 1270) in paragraph at lines 653--654
+warning: main.tex:678: Underfull \hbox (badness 4660) in paragraph at lines 678--678
+warning: main.tex:678: Underfull \hbox (badness 10000) in paragraph at lines 678--678
+warning: main.tex:678: Underfull \hbox (badness 4713) in paragraph at lines 678--678
+warning: main.tex:678: Underfull \hbox (badness 1675) in paragraph at lines 678--678
+warning: main.tex:686: Requested font "[TeXGyreTermesX-Regular.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 10.5pt
+warning: main.tex:690: Requested font "[TeXGyreTermesX-Italic.otf]/OT:script=latn;language=dflt;-ss05;+tnum;+lnum;mapping=tex-text;" at 14.4pt
+warning: main.tex:691: Underfull \hbox (badness 10000) in paragraph at lines 690--691
+warning: main.tex:691: Underfull \hbox (badness 10000) in paragraph at lines 690--691
+warning: main.tex:694: Underfull \hbox (badness 10000) in paragraph at lines 693--694
+warning: main.tex:694: Underfull \hbox (badness 10000) in paragraph at lines 693--694
+warning: main.tex:700: Underfull \hbox (badness 6001) in paragraph at lines 699--700
+warning: main.tex:748: Requested font "[lmmono12-regular]:" at 12.0pt
+warning: main.tex:765: Requested font "ntx-Bold-tlf-ot1" at 14.4pt
+warning: main.tex:765:  -> ntx-Bold-tlf-ot1
+warning: main.tex:765: Requested font "ntx-Bold-tlf-ot1" at 10.5pt
+warning: main.tex:765:  -> ntx-Bold-tlf-ot1
+warning: main.tex:765: Requested font "ntx-Bold-tlf-ot1" at 7.9pt
+warning: main.tex:765:  -> ntx-Bold-tlf-ot1
+warning: Trying to include PDF file with version (1.7), which is newer than current output PDF setting (1.5).
+note: Running xdvipdfmx ...
+warning: warnings were issued by the TeX engine; use --print and/or --keep-logs for details.
+warning: Trying to include PDF file with version (1.7), which is newer than current output PDF setting (1.5).
+note: Writing `E:\Naresh_Projects\PINN_EV_battery\phase1_report\build\main.aux` (17.1591796875 KiB)
+note: Writing `E:\Naresh_Projects\PINN_EV_battery\phase1_report\build\main.pdf` (3.524947166442871 MiB)
+note: Writing `E:\Naresh_Projects\PINN_EV_battery\phase1_report\build\main.out` (9.6220703125 KiB)
+note: Writing `E:\Naresh_Projects\PINN_EV_battery\phase1_report\build\main.lot` (1.2841796875 KiB)
+note: Writing `E:\Naresh_Projects\PINN_EV_battery\phase1_report\build\main.log` (68.154296875 KiB)
+note: Writing `E:\Naresh_Projects\PINN_EV_battery\phase1_report\build\main.lof` (1.697265625 KiB)

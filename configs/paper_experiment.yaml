@@ -1,0 +1,72 @@
+project:
+  name: "PC-MP-PINN Battery Surrogate"
+  version: "1.0"
+  reference: "battery_pinn_ieee_conference_recent_refs.pdf"
+
+reproducibility:
+  seeds: [11, 22, 33]
+  deterministic: true
+
+simulation:
+  model: "SPMe"
+  parameter_set: "Chen2020"
+  thermal: "lumped"
+  initial_soc: 1.0
+  cutoff_voltage_V: 2.5
+  fixed_horizon_s: 7200.0
+  time_points: 100
+  radial_points: 25
+  conditions:
+    train:
+      c_rates: [0.5, 1.0, 1.5, 2.0]
+      ambient_C: [10.0, 25.0, 35.0]
+    validation:
+      pairs: [[0.75, 15.0], [0.75, 30.0], [1.75, 15.0], [1.75, 30.0]]
+    test:
+      pairs: [[1.25, 20.0], [1.25, 32.5]]
+
+physics:
+  particle_radius_m: 5.86e-6
+  diffusivity_m2_s: 3.3e-14
+  max_concentration_mol_m3: 33133.0
+  faraday_C_mol: 96485.33212
+  youngs_modulus_Pa: 15.0e9
+  poissons_ratio: 0.30
+  partial_molar_volume_m3_mol: 3.1e-6
+  volumetric_heat_capacity_J_m3_K: 2.5e6
+  cooling_W_m3_K: 120.0
+
+training:
+  variants: [data_only, prior_pinn, pc_mp_pinn]
+  label_budgets: [50, 150, 300]
+  hidden_layers: 4
+  hidden_width: 96
+  activation: tanh
+  learning_rate: 1.0e-3
+  max_epochs: 2500
+  patience: 350
+  gradient_clip: 10.0
+  interior_points_per_condition: 900
+  boundary_points_per_condition: 120
+  loss_weights:
+    concentration: 1.0
+    temperature: 1.0
+    stress: 0.25
+    diffusion: 0.05
+    thermal: 0.05
+    center_bc: 0.10
+    surface_bc: 0.10
+    mechanics: 0.05
+  quick:
+    max_epochs: 60
+    patience: 15
+    physics_batch: 96
+
+paths:
+  dataset_parquet: "data/processed/paper_v1/dataset.parquet"
+  database: "data/processed/paper_v1/battery_pinn.sqlite"
+  metadata: "data/processed/paper_v1/metadata.json"
+  checkpoints: "outputs/paper_v1/checkpoints"
+  metrics: "outputs/paper_v1/metrics.csv"
+  predictions: "outputs/paper_v1/predictions.parquet"
+  dashboard_data: "dashboard/assets/results.json"

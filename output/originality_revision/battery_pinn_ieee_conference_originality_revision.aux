@@ -1,0 +1,125 @@
+\relax 
+\citation{doyle1993dfn}
+\citation{marquis2019spme,richardson2020gspm,planella2022continuum}
+\citation{raissi2019pinn}
+\citation{hassanaly2024part1,hassanaly2024part2,wang2023temperature,wang2024parameter}
+\citation{wei2026etm}
+\citation{cheng2009stress}
+\citation{raissi2019pinn}
+\citation{hassanaly2024part1,hassanaly2024part2}
+\citation{wang2024parameter}
+\citation{zhuang2026spm}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{}\protected@file@percent }
+\citation{fu2024spacecraft,dang2024soc}
+\citation{jiang2025heatmap}
+\citation{ye2024soh,tian2025generic,xiong2025diagnostics,chen2025smallsample,luo2025hybrid}
+\citation{wang2023temperature}
+\citation{lyu2024digitaltwin}
+\citation{cheng2009stress,christensen2006fracture}
+\citation{xu2016electrochemomechanics}
+\citation{hassanaly2024part1}
+\citation{hassanaly2024part2}
+\citation{wang2023temperature}
+\citation{wang2024parameter}
+\citation{lyu2024digitaltwin}
+\citation{fu2024spacecraft}
+\citation{dang2024soc}
+\citation{jiang2025heatmap}
+\citation{wei2026etm}
+\citation{zhuang2026spm}
+\citation{sulzer2021pybamm}
+\citation{chen2020parameterization}
+\citation{bernardi1985energy}
+\citation{cheng2009stress}
+\@writefile{toc}{\contentsline {section}{\numberline {II}Related Work and Research Gap}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-A}}Electrochemical surrogate models}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-B}}Recent battery applications}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-C}}Thermal and mechanical coupling}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-D}}Reason for retaining mechanics}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {III}Governing Physics}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Solid-Phase Lithium Diffusion}{2}{}\protected@file@percent }
+\newlabel{eq:diffusion}{{1}{2}}
+\newlabel{eq:flux}{{3}{2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}Lumped Thermal Balance}{2}{}\protected@file@percent }
+\newlabel{eq:thermal}{{5}{2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-C}}Diffusion-Induced Particle Stress}{2}{}\protected@file@percent }
+\newlabel{eq:A}{{6}{2}}
+\newlabel{eq:sr}{{7}{2}}
+\newlabel{eq:st}{{8}{2}}
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Task, physics representation, and unresolved point in ten related battery studies}}{3}{}\protected@file@percent }
+\newlabel{tab:gap}{{I}{3}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Proposed Physics-Consistent PINN}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Architecture and Hard Constraints}{3}{}\protected@file@percent }
+\newlabel{eq:hardc}{{9}{3}}
+\newlabel{eq:hardt}{{10}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Physics Residuals}{3}{}\protected@file@percent }
+\newlabel{eq:rc}{{11}{3}}
+\newlabel{eq:rt}{{12}{3}}
+\newlabel{eq:lphys}{{13}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Supervised and Total Loss}{3}{}\protected@file@percent }
+\newlabel{eq:ldata}{{14}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}Reproducible implementation}{3}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Proposed PC-MP-PINN{} architecture. The temperature branch matches the lumped thermal assumption, while stress is an analytical function of predicted concentration.}}{4}{}\protected@file@percent }
+\newlabel{fig:architecture}{{1}{4}}
+\@writefile{toc}{\contentsline {section}{\numberline {V}Experimental Methodology}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Reference data and condition split}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}Models and optimization settings}{4}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Full Experimental Configuration}}{5}{}\protected@file@percent }
+\newlabel{tab:config}{{II}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-C}}Controlled comparisons}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-D}}Evaluation measures}{5}{}\protected@file@percent }
+\newlabel{eq:rmse}{{15}{5}}
+\newlabel{eq:rell2}{{16}{5}}
+\newlabel{eq:mass}{{17}{5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Operating conditions and matched comparisons. Model variants differ in formulation, while partitions, label counts, and random seeds remain fixed.}}{5}{}\protected@file@percent }
+\newlabel{fig:design}{{2}{5}}
+\citation{hassanaly2024part1,hassanaly2024part2}
+\citation{wei2026etm}
+\citation{wang2023temperature}
+\newlabel{eq:gap}{{18}{6}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {V-D}1}Inference latency and solver speedup}{6}{}\protected@file@percent }
+\newlabel{eq:speedup}{{19}{6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-E}}Aggregation and decision rule}{6}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Timing procedure for the PINN and SPMe reference solver on one held-out query batch.}}{6}{}\protected@file@percent }
+\newlabel{fig:latency_protocol}{{3}{6}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Results and Discussion}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-A}}Result-reporting rule}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-B}}Plots and traceability}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-C}}Questions answered by the experiment}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-D}}Expected physical behavior}{6}{}\protected@file@percent }
+\citation{chen2020parameterization}
+\citation{sulzer2021pybamm}
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Held-Out Test Performance at 300 Labels per Training Condition (Mean $\pm $ Standard Deviation Across Three Seeds)}}{7}{}\protected@file@percent }
+\newlabel{tab:results}{{III}{7}}
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Limitations and Threats to Validity}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VII-A}}Sensitivity and numerical uncertainty}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VII-B}}Failure analysis}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VIII}Conclusion}{7}{}\protected@file@percent }
+\bibcite{doyle1993dfn}{1}
+\bibcite{marquis2019spme}{2}
+\bibcite{richardson2020gspm}{3}
+\bibcite{planella2022continuum}{4}
+\bibcite{raissi2019pinn}{5}
+\bibcite{hassanaly2024part1}{6}
+\bibcite{hassanaly2024part2}{7}
+\bibcite{wang2023temperature}{8}
+\bibcite{wang2024parameter}{9}
+\bibcite{wei2026etm}{10}
+\bibcite{cheng2009stress}{11}
+\bibcite{zhuang2026spm}{12}
+\bibcite{fu2024spacecraft}{13}
+\bibcite{dang2024soc}{14}
+\bibcite{ye2024soh}{15}
+\bibcite{jiang2025heatmap}{16}
+\bibcite{tian2025generic}{17}
+\bibcite{xiong2025diagnostics}{18}
+\bibcite{chen2025smallsample}{19}
+\bibcite{luo2025hybrid}{20}
+\bibcite{lyu2024digitaltwin}{21}
+\bibcite{christensen2006fracture}{22}
+\bibcite{xu2016electrochemomechanics}{23}
+\bibcite{sulzer2021pybamm}{24}
+\bibcite{chen2020parameterization}{25}
+\bibcite{bernardi1985energy}{26}
+\@writefile{toc}{\contentsline {section}{References}{8}{}\protected@file@percent }
+\gdef \@abspage@last{8}

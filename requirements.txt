@@ -1,0 +1,37 @@
+# Stage I: Electrochemical-Thermal PINN for Li-Ion Cells
+# Python 3.11 required
+# Install: pip install -r requirements.txt
+
+# Core scientific simulation
+# NOTE: pybamm 26.x is installed (newer than originally pinned 24.x)
+# API verified compatible at Stage I.
+pybamm>=26.8.0,<27.0.0
+
+# Deep learning
+torch>=2.2.0
+
+# Numerical / scientific
+numpy>=1.26.0
+scipy>=1.12.0
+
+# Data storage and I/O
+h5py>=3.10.0
+pandas>=2.2.0
+pyarrow>=15.0.0
+
+# Configuration
+PyYAML>=6.0.1
+
+# Visualization
+matplotlib>=3.8.0
+
+# Testing
+pytest>=8.0.0
+
+# Optional: memory profiling
+psutil>=5.9.0
+
+# Showcase API
+fastapi>=0.115.0
+uvicorn>=0.30.0
+jupyter>=1.1.0

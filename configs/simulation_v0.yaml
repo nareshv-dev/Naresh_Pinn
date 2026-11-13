@@ -1,0 +1,215 @@
+# =============================================================================
+# Stage I Dataset Generation Configuration
+# Project: Staged Coupling-Aware PINNs for Li-Ion Cells
+# Config version: v0
+# =============================================================================
+# IMPORTANT: No physical constant, variable name, or parameter may be hard-coded
+# in multiple source files. This file is the single source of truth.
+# =============================================================================
+
+config_version: "v0"
+stage: 1
+
+# ---------------------------------------------------------------------------
+# Reproducibility
+# ---------------------------------------------------------------------------
+random_seed: 42
+git_commit: "auto"  # "auto" = attempt to read from git, "none" = skip
+
+# ---------------------------------------------------------------------------
+# PyBaMM model configuration
+# ---------------------------------------------------------------------------
+pybamm:
+  model_name: "SPMe"                # pybamm.lithium_ion.SPMe
+  parameter_set: "Chen2020"         # LG M50 NMC/graphite cell
+  model_options:
+    thermal: "lumped"               # single ODE for average cell temperature T(t)
+    # NOTE: "x-full" would give T(x,t) — deferred to Stage II
+  solver: "CasadiSolver"
+  solver_options:
+    mode: "safe"
+    rtol: 1.0e-6
+    atol: 1.0e-6
+  # Variable names must match pybamm output exactly (verified against pybamm.lithium_ion.SPMe)
+  output_variables:
+    voltage: "Voltage [V]"
+    # Volume-averaged cell temperature: returns shape (n_t,) — a true scalar T(t)
+    # NOTE: "Cell temperature [K]" returns (60, n_t) full spatial distribution — do NOT use
+    temperature: "Volume-averaged cell temperature [K]"
+    # X-averaged negative particle concentration: shape (n_r_internal, n_t) from entries,
+    # or (n_r_query, n_t) when called as conc(r=..., t=...)
+    concentration_neg: "X-averaged negative particle concentration [mol.m-3]"
+    # Optional: electrolyte (not extracted at Stage I — shape is complex)
+    # electrolyte_concentration: "Electrolyte concentration [mol.m-3]"  # Stage II
+  # Mesh configuration
+  mesh:
+    geometry: "1D"                  # handled internally by SPMe
+    # Note: PyBaMM SPMe uses its own internal discretisation; we do not
+    # override the default mesh at Stage I to avoid solver instability.
+    # The radial coordinate is retrieved as a post-processing grid.
+    n_points_r_neg: 10              # number of radial points to sample from solution
+
+# ---------------------------------------------------------------------------
+# Factorial sweep: operating conditions
+# ---------------------------------------------------------------------------
+sweep:
+  # Discharge C-rates (positive = discharge)
+  c_rates: [0.5, 1.0, 2.0]         # [C]
+
+  # Ambient temperatures in Kelvin
+  # -5 C = 268.15 K, 25 C = 298.15 K, 45 C = 318.15 K
+  ambient_temperatures_K: [268.15, 298.15, 318.15]
+
+  # Initial state of charge (fraction, 0–1)
+  initial_soc_values: [1.0]         # fixed at Stage I
+
+  # Protocol: constant-current discharge to cutoff voltage
+  protocol:
+    protocol_id: "CC_discharge_v0"
+    description: "Constant-current discharge from initial_soc to cutoff voltage"
+    # Cutoff voltage in volts (from Chen2020 parameter set)
+    voltage_cutoff_V: 2.5
+
+# ---------------------------------------------------------------------------
+# Condition-level dataset split (NOT a random point-level split)
+# Each entry is [c_rate, ambient_temperature_K, initial_soc]
+# ---------------------------------------------------------------------------
+split_policy:
+  description: >
+    Condition-level split. Each operating condition (C-rate, T_amb, SOC_init)
+    is assigned to exactly one split. The final unseen test set is a single
+    complete operating condition withheld entirely.
+  train:
+    - [0.5, 268.15, 1.0]
+    - [0.5, 298.15, 1.0]
+    - [1.0, 268.15, 1.0]
+    - [1.0, 298.15, 1.0]
+    - [2.0, 268.15, 1.0]
+    - [2.0, 298.15, 1.0]
+  validation:
+    - [0.5, 318.15, 1.0]
+    - [1.0, 318.15, 1.0]
+  test:
+    - [2.0, 318.15, 1.0]   # FINAL UNSEEN — do NOT evaluate until EXP-002 and EXP-003 are locked
+
+# ---------------------------------------------------------------------------
+# Quality checks (bounds for run validation)
+# ---------------------------------------------------------------------------
+quality:
+  voltage_min_V: 2.4               # below this = run is suspect
+  voltage_max_V: 4.3               # above this = run is suspect
+  temperature_min_K: 230.0
+  temperature_max_K: 360.0
+  concentration_min_mol_m3: 0.0
+  concentration_max_mol_m3: 35000.0  # Chen2020 c_s_max_neg ≈ 33133 mol/m³
+  require_finite: true
+  require_monotonic_time: true
+  require_monotonic_r: true
+
+# ---------------------------------------------------------------------------
+# Output paths
+# ---------------------------------------------------------------------------
+paths:
+  raw_data_dir: "data/raw/pybamm_v0/runs"
+  processed_dir: "data/processed"
+  reports_dir: "data/reports"
+  sqlite_manifest: "data/processed/dataset_v0_manifest.sqlite"
+  scaler_artifact: "data/processed/scalers_v0.json"
+  train_index_parquet: "data/processed/split_train_v0.parquet"
+  val_index_parquet: "data/processed/split_val_v0.parquet"
+  test_index_parquet: "data/processed/split_test_v0.parquet"
+  checkpoints_dir: "outputs/checkpoints"
+  figures_dir: "outputs/figures"
+  logs_dir: "outputs/logs"
+
+# ---------------------------------------------------------------------------
+# Nondimensionalization reference scales
+# These are read by src/preprocessing/nondim.py — not hardcoded there.
+# Values derived from Chen2020 parameter set (LG M50):
+#   D_s0_neg  ≈ 3.3e-14 m²/s  (negative electrode solid diffusivity, ref)
+#   R_s_neg   ≈ 5.86e-6 m     (negative electrode particle radius)
+#   c_s_max_neg ≈ 33133 mol/m³ (negative electrode max concentration)
+#   c_s_0_neg   ≈ 0.8 * c_s_max_neg (initial concentration at SOC=1)
+# ---------------------------------------------------------------------------
+nondim:
+  # Time scale: t_ref = R_s_neg^2 / D_s0_neg  [s]
+  # Computed: (5.86e-6)^2 / 3.3e-14 ≈ 1040.8 s ≈ 1041 s
+  t_ref_s: 1041.0
+  # Particle radius scale [m]
+  R_s_neg_m: 5.86e-6
+  # Concentration scale: c_s_max_neg [mol/m³]
+  c_s_max_neg_mol_m3: 33133.0
+  # Temperature reference [K] and scale [K]
+  T_ref_K: 298.15
+  delta_T_K: 50.0
+  # Voltage reference [V] and scale [V]
+  V_ref_V: 3.7
+  delta_V_V: 1.0
+  # Current reference: 1C rate current [A]
+  # Chen2020 nominal capacity ≈ 5 Ah; 1C ≈ 5 A
+  I_ref_A: 5.0
+
+# ---------------------------------------------------------------------------
+# Training configuration
+# ---------------------------------------------------------------------------
+training:
+  # Sampler settings
+  n_labeled_samples_per_run: 500   # labeled data points per HDF5 run
+  n_collocation_interior: 5000     # interior collocation for PINN
+  n_collocation_ic: 500            # initial condition collocation
+  n_collocation_bc: 500            # boundary condition collocation
+  sampler: "sobol"                 # "sobol" or "latin_hypercube"
+  sampler_seed: 42
+
+  # EXP-002: Data-only MLP
+  mlp:
+    experiment_id: "EXP-002"
+    hidden_dims: [128, 128, 128, 64]
+    activation: "tanh"
+    input_dim: 4                   # [t*, r*, I*, T_amb*]
+    output_dim: 3                  # [V*, c_s*, T*]
+    learning_rate: 1.0e-3
+    batch_size: 512
+    max_epochs: 2000
+    early_stopping_patience: 100
+    optimizer: "Adam"
+    use_lbfgs_refinement: false    # Stage I: Adam only
+
+  # EXP-003: Fixed-weight PINN
+  pinn:
+    experiment_id: "EXP-003"
+    hidden_dims: [128, 128, 128, 64]
+    activation: "tanh"
+    input_dim: 4
+    output_dim: 3
+    learning_rate: 1.0e-3
+    batch_size: 512
+    max_epochs: 3000
+    early_stopping_patience: 150
+    optimizer: "Adam"
+    use_lbfgs_refinement: false
+    # Fixed loss weights (no adaptive weighting at Stage I)
+    loss_weights:
+      data: 1.0
+      diffusion_residual: 0.01
+      thermal_residual: 0.01
+      ic: 0.1
+      bc: 0.1
+
+  # Checkpoint settings
+  checkpoint_every_n_epochs: 100
+  log_every_n_steps: 50
+
+# ---------------------------------------------------------------------------
+# Evaluation configuration
+# ---------------------------------------------------------------------------
+evaluation:
+  splits_to_evaluate: ["validation", "test"]
+  latency_n_trials: 100            # number of forward passes for latency stats
+  figures:
+    voltage_vs_ref: true
+    temperature_vs_ref: true
+    concentration_heatmap: true
+    loss_curves: true
+    residual_histograms: true
+    summary_table: true

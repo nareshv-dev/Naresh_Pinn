@@ -1,0 +1,64 @@
+simulation:
+  tick_interval_s: 0.75
+  simulated_step_s: 15.0
+  initial_soc: 1.0
+  nominal_capacity_Ah: 5.0
+  cell_mass_kg: 0.069
+  cell_heat_capacity_J_kg_K: 900.0
+  internal_resistance_ohm: 0.028
+  default_scenario: normal
+  default_speed: 5.0
+  radial_points: 25
+
+scenarios:
+  normal:
+    label: Normal urban load
+    base_c_rate: 1.0
+    ambient_C: 25.0
+    cooling_factor: 1.0
+    description: Steady 1C discharge at room temperature.
+  aggressive:
+    label: Aggressive acceleration
+    base_c_rate: 2.0
+    ambient_C: 30.0
+    cooling_factor: 1.0
+    description: Sustained high-power discharge.
+  hot_ambient:
+    label: Hot ambient
+    base_c_rate: 1.5
+    ambient_C: 40.0
+    cooling_factor: 0.8
+    description: Operation above the PINN training temperature range.
+  pulsed:
+    label: Pulsed driving load
+    base_c_rate: 1.2
+    ambient_C: 25.0
+    cooling_factor: 1.0
+    description: Alternating acceleration and cruise demand.
+  cooling_failure:
+    label: Cooling failure
+    base_c_rate: 1.5
+    ambient_C: 32.0
+    cooling_factor: 0.15
+    description: Reduced heat rejection during discharge.
+  abnormal_heating:
+    label: Abnormal heating injection
+    base_c_rate: 1.25
+    ambient_C: 30.0
+    cooling_factor: 0.6
+    extra_heat_W: 6.0
+    description: Controlled software fault used to demonstrate early warning.
+
+experimental_thresholds:
+  temperature_warning_C: 45.0
+  temperature_critical_C: 55.0
+  tensile_stress_warning_MPa: 60.0
+  tensile_stress_critical_MPa: 75.0
+  soc_low_percent: 15.0
+  model_confidence_warning: 0.65
+
+model:
+  experiment_config: configs/paper_experiment.yaml
+  deployment_checkpoint: outputs/deployment/pc_mp_pinn_live.pt
+  checkpoint_glob: outputs/paper_v1/checkpoints/pc_mp_pinn-*.pt
+  prefer_mode: full

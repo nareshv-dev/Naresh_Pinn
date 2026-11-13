@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Software-only real-time PC-MP-PINN lithium-ion battery digital twin">
+  <title>Battery Digital Twin Control Room</title>
+  <link rel="stylesheet" href="/dashboard/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to digital twin</a>
+  <header class="app-bar">
+    <a class="brand" href="#main" aria-label="Battery Digital Twin home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="4" width="20" height="24" rx="4"/><path d="M25 12h3v8h-3M10 17h5l-2 6 9-11h-6l2-5"/></svg>
+      <span><strong>Battery Digital Twin</strong><small>PC-MP-PINN control room</small></span>
+    </a>
+    <div class="source-banner"><span class="source-dot"></span><strong>Software simulation</strong><span>No physical hardware connected</span></div>
+    <div id="connectionBadge" class="connection offline" role="status">Backend offline</div>
+  </header>
+
+  <main id="main" class="workspace">
+    <section class="intro" aria-labelledby="pageTitle">
+      <div><p class="eyebrow">Real-time physics-informed surrogate</p><h1 id="pageTitle">See the battery states that sensors cannot measure.</h1><p>Live software telemetry drives a trained PINN that estimates particle concentration, temperature and concentration-induced stress, then compares the next five minutes under alternative actions.</p></div>
+      <div class="model-proof"><span>Inference model</span><strong id="modelName">Loading checkpoint</strong><small id="modelMode">Validation status pending</small></div>
+    </section>
+
+    <section class="control-room" aria-label="Live digital twin">
+      <aside class="control-panel panel">
+        <div class="panel-heading"><div><p class="eyebrow">Software plant</p><h2>Run controls</h2></div><span id="runStatus" class="status-chip idle">Idle</span></div>
+        <label for="scenarioSelect">Driving scenario</label>
+        <select id="scenarioSelect"></select>
+        <p id="scenarioDescription" class="helper"></p>
+        <div class="field-row"><label for="speedSelect">Simulation speed</label><select id="speedSelect"><option value="1">1×</option><option value="5" selected>5×</option><option value="10">10×</option><option value="20">20×</option></select></div>
+        <div class="button-grid"><button id="startButton" class="button primary" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>Start</button><button id="pauseButton" class="button" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>Pause</button><button id="resetButton" class="button" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2-5.3M4 4v6h6"/></svg>Reset</button></div>
+        <fieldset><legend>Live intervention</legend><label for="currentRange">Discharge rate <output id="currentOutput">Scenario</output></label><input id="currentRange" type="range" min="0.1" max="2.5" step="0.1" value="1"><label class="check-row"><input id="currentAuto" type="checkbox" checked> Follow scenario current</label><label for="coolingRange">Cooling effectiveness <output id="coolingOutput">1.0×</output></label><input id="coolingRange" type="range" min="0" max="2" step="0.1" value="1"><button id="applyButton" class="button block" type="button" disabled>Apply intervention</button></fieldset>
+        <div class="session-meta"><span>Session</span><code id="sessionId">Not started</code><a id="exportLink" class="text-link disabled" aria-disabled="true">Export telemetry CSV</a></div>
+      </aside>
+
+      <section class="twin-panel panel" aria-labelledby="twinTitle">
+        <div class="panel-heading"><div><p class="eyebrow">Three-dimensional state view</p><h2 id="twinTitle">Cell and electrode particle</h2></div><button id="motionButton" class="icon-button" type="button" aria-pressed="false" aria-label="Pause 3D rotation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button></div>
+        <div class="three-wrap"><canvas id="twinCanvas" aria-label="Interactive 3D battery cell and enlarged electrode particle"></canvas><div id="threeFallback" hidden>3D view unavailable. Live numerical values remain available below.</div><div class="three-label cell-label"><strong>Negative particle</strong><span>Concentration and stress</span></div><div class="three-label particle-label"><strong>Cell</strong><span>Lumped temperature</span></div></div>
+        <div class="visual-legends"><div><span>Temperature</span><i class="temperature-scale"></i><small>cool to hot</small></div><div><span>Concentration</span><i class="concentration-scale"></i><small>low to high</small></div><div><span class="stress-swatch"></span><span>Peak tensile-stress ring</span></div></div>
+        <p class="scientific-note">The cell colour represents one lumped temperature. The particle radius is normalized and enlarged for inspection; this is not a spatial cell-hotspot map.</p>
+      </section>
+
+      <aside class="risk-panel panel" aria-live="polite">
+        <div class="panel-heading"><div><p class="eyebrow">Explainable monitoring</p><h2>Risk assessment</h2></div><span id="riskBadge" class="risk normal">Normal</span></div>
+        <div class="risk-orbit"><div><strong id="riskScore">—</strong><span>model confidence</span></div></div>
+        <p id="riskRecommendation" class="recommendation">Start a scenario to begin monitoring.</p>
+        <ul id="riskReasons" class="reason-list"><li>No active alerts.</li></ul>
+        <div class="threshold-box"><strong>Experimental thresholds</strong><dl><div><dt>Temperature warning</dt><dd id="tempThreshold">45 °C</dd></div><div><dt>Tensile-stress warning</dt><dd id="stressThreshold">60 MPa</dd></div></dl><p>Configurable demonstration limits. Not certified BMS safety commands.</p></div>
+      </aside>
+    </section>
+
+    <section class="metric-strip" aria-label="Live measurements and estimates">
+      <article><span>Simulated voltage</span><strong id="voltageValue">—</strong><small>V · software sensor</small></article><article><span>Simulated current</span><strong id="currentValue">—</strong><small>A · software sensor</small></article><article><span>State of charge</span><strong id="socValue">—</strong><small>% · software plant</small></article><article><span>Simulated surface T</span><strong id="measuredTempValue">—</strong><small>°C · software sensor</small></article><article><span>PINN temperature</span><strong id="predictedTempValue">—</strong><small>°C · estimated</small></article><article><span>Peak tensile stress</span><strong id="stressValue">—</strong><small>MPa · estimated</small></article><article><span>Critical radius</span><strong id="radiusValue">—</strong><small>r* · estimated</small></article><article><span>Inference latency</span><strong id="latencyValue">—</strong><small>ms · backend</small></article>
+    </section>
+
+    <section class="analysis-grid">
+      <article class="panel chart-panel"><div class="panel-heading"><div><p class="eyebrow">Measured versus estimated</p><h2>Temperature timeline</h2></div><span id="elapsedTime" class="mono">00:00</span></div><canvas id="temperatureChart" height="270" aria-label="Timeline comparing simulated surface temperature and PINN temperature"></canvas><div class="legend"><span><i class="legend-measured"></i>Simulated surface temperature</span><span><i class="legend-predicted"></i>PINN estimate</span></div><p id="temperatureSummary" class="sr-summary">No temperature data yet.</p></article>
+      <article class="panel chart-panel"><div class="panel-heading"><div><p class="eyebrow">Hidden internal state</p><h2>Radial particle profile</h2></div><span id="surfaceConcentration" class="mono">— mol m⁻³</span></div><canvas id="profileChart" height="270" aria-label="Radial concentration and tangential stress profile"></canvas><div class="legend"><span><i class="legend-concentration"></i>Concentration</span><span><i class="legend-stress"></i>Tangential stress</span></div><details><summary>Accessible radial data table</summary><div class="table-scroll"><table><thead><tr><th>Radius r*</th><th>Concentration (mol m⁻³)</th><th>Radial stress (MPa)</th><th>Tangential stress (MPa)</th></tr></thead><tbody id="radialTable"></tbody></table></div></details></article>
+    </section>
+
+    <section class="forecast-section panel" aria-labelledby="forecastTitle"><div class="panel-heading"><div><p class="eyebrow">Five-minute decision support</p><h2 id="forecastTitle">Compare interventions</h2></div><button id="compareButton" class="button" type="button" disabled>Refresh comparison</button></div><div id="forecastCards" class="forecast-cards"><p class="empty-state">Start the digital twin to compare future actions.</p></div><p class="scientific-note">Cooling comparison uses the software plant’s thermal balance because cooling strength is not an input to the current PINN. It is labelled as a hybrid experimental forecast.</p></section>
+
+    <section class="method-grid">
+      <article class="panel"><p class="eyebrow">Data path</p><h2>What happens each tick?</h2><ol class="step-list"><li><span>1</span><div><strong>Software telemetry</strong><p>A deterministic plant produces current, voltage, SOC and surface temperature.</p></div></li><li><span>2</span><div><strong>Checkpoint inference</strong><p>The backend evaluates the trained PC-MP-PINN at 25 radial coordinates.</p></div></li><li><span>3</span><div><strong>Physics coupling</strong><p>Concentration is converted into radial and tangential particle stress.</p></div></li><li><span>4</span><div><strong>Forecast and persistence</strong><p>The system predicts short horizons, evaluates thresholds and stores the tick in SQLite.</p></div></li></ol></article>
+      <article class="panel"><p class="eyebrow">Scientific honesty</p><h2>What this demonstration proves</h2><ul class="check-list"><li>Real backend checkpoint execution</li><li>Continuous WebSocket updates</li><li>Hidden-state estimation with physical coupling</li><li>Repeatable software fault scenarios</li><li>Persistent, exportable experiment sessions</li></ul><h3>What it does not claim</h3><ul class="limit-list"><li>No hardware measurements are connected.</li><li>No certified battery-safety decision is produced.</li><li>No 3D cell hotspot is inferred from a lumped thermal model.</li></ul></article>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/dashboard/app.js" defer></script>
+  <script type="module" src="/dashboard/twin3d.js"></script>
+</body>
+</html>

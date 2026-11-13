@@ -1,0 +1,1577 @@
+NutriGuard-AI: An Age-Aware, Evidence-Grounded
+Food Label Assistant for Indian Packaged Foods
+PHASE I REPORT
+Submitted by
+MAULYA H
+NANDHA KUMAR K B
+NANDHA KISHORE K B
+RAJ KUMAR YADAV
+in partial fulfillment for the award of the degree of
+BACHELOR OF ENGINEERING IN 
+COMPUTER SCIENCE AND 
+ENGINEERING
+DEPARTMENT OF COMPUTER SCIENCE 
+AND ENGINEERING
+KPR INSTITUTE OF ENGINEERING AND 
+TECHNOLOGY
+ANNA UNIVERSITY, CHENNAI
+OCTOBER 2026
+
+
+ii
+BONAFIDE CERTIFICATE
+Certified  that  this  Report  titled  “ NutriGuard-AI:  An  Age-Aware,  
+Evidence-Grounded Food Label Assistant for Indian Packaged Foods ” is 
+the bonafide work of  MAULYA H (23CS100), NANDHA KUMAR K B  
+(23CS109),  NANDHA  KISHORE  K  B  (23CS110),  RAJ  KUMAR  
+YADAV  (23CS137)  who  carried  out  the  work  under  my  supervision.  
+Certified further that to the best of my knowledge the work reported herein  
+does not form part of any other thesis or dissertation on the basis of which a  
+degree or award was conferred on an earlier occasion on this or any other  
+candidate.
+Signature of the HOD with date                Signature of the 
+Supervisor with date
+Dr.Miruna Joe Amali S 
+Professor and Head                                                        Academic  Designation of 
+Supervisor 
+Department of Computer Science and Engineering
+KPR Institute of Engineering and Technology
+
+iii
+ACKNOWLEDGEMENT
+We also thank the faculty members, technical staff, our families, and our friends  
+for their support and motivation during the successful completion of Phase I.
+We express our deepest appreciation to our project supervisor, B. Vishnu Priya,  
+Department of Computer Science and Engineering, for her valuable guidance,  
+reviews,  suggestions,  and  encouragement  during  the  development  and  
+documentation of NutriGuard-AI.
+We sincerely thank Dr. Miruna Joe Amali S, Professor and Head, Department  
+of Computer Science and Engineering, for her guidance and support throughout  
+the project period.
+We are grateful to Dr. M. Akila, Principal, KPR Institute of Engineering and  
+Technology,  for  her  continuous  encouragement  and  for  supporting  student  
+research and technical development.
+We express our sincere gratitude to Dr. K. P. Ramasamy, Chairman, and Ms.  
+Gayathri Anandakrishnan, Secretary, KPR Group of Institutions, for providing  
+an  academic  environment  that  encouraged  learning,  innovation,  and  project  
+development.
+
+iv
+ABSTRACT
+NutriGuard-AI  is  an  AI-assisted,  age-aware  framework  for  assessing  Indian 
+packaged-food labels in a transparent and reproducible manner. The system  
+combines  multimodal  label  interpretation  for  information  acquisition  with  a 
+separate  deterministic  scoring  engine  that  evaluates  four  assessment  pillars: 
+nutrition, ingredients, processing, and additive exposure. Age-specific reference  
+configurations are used for child, teen, adult, and elderly profiles, and a NOVA-
+based  processing  adjustment  is  incorporated  into  the  score.  The  application 
+additionally  provides  evidence-oriented  explanations,  score  breakdowns,  
+product comparisons, allergen information, and counterfactual what-if analysis.  
+In  the  completed  Phase  I  implementation,  an  evaluation  collection  of  100  
+structured  packaged-food  records  was  used  to  test  bounded  scoring,  
+deterministic  repeatability,  component  ablation,  age  sensitivity,  coefficient  
+perturbation, NOVA perturbation, missing-data handling, category sensitivity,  
+counterfactual behavior, and external reference comparison. All 100 records  
+passed  the  basic  score-bound,  grade-generation,  and  determinism  checks  
+without crashes. The largest mean ablation effects were observed for nutrition  
+(20.52 points) and NOVA (16.50 points), while age produced a mean effect of  
+3.31 points. Controlled NOVA perturbation produced a mean score swing of  
+35.58 points across the evaluated records. On 56 products for which Nutri-Score 
+2023  classification  was  robust,  the  continuous  NutriGuard  score  showed  
+Spearman correlation of 0.687 with inverse Nutri-Score class, while exact five-
+class agreement was 28.6%. These results demonstrate the internal consistency  
+and sensitivity of the implemented software framework; they do not establish  
+clinical validity, health-outcome superiority, or population-level effects. Phase  
+II will focus on further validation, refinement, and final project presentation.
+
+v
+TABLE OF CONTENTS
+TITLE PAGE
+ACKNOWLEDGEMENT iii
+ABSTRACT iv
+LIST OF TABLES vii
+LIST OF FIGURES viii
+LIST OF ABBREVIATIONS ix
+1  INTRODUCTION 1
+  1.1 GENERAL 1
+  1.2 NEED FOR THE STUDY 2
+  1.3 OBJECTIVES OF THE STUDY 3
+2  REVIEW OF LITERATURE 4
+  2.1 INTRODUCTION 4
+  2.2 EXISTING NUTRITION SCORING 
+SYSTEMS
+4
+  2.3 AI IN HEALTHCARE AND NUTRITION 5
+  2.4 LITERATURE SURVEY 5
+3  METHODOLOGY AND SYSTEM 
+ARCHITECTURE
+8
+  3.1–3.13 SYSTEM METHODOLOGY 8–12
+4  SYSTEM IMPLEMENTATION AND 
+RESULTS
+13
+  4.1–4.11 IMPLEMENTATION AND 
+EVALUATION
+13–18
+5  CONCLUSIONS AND WORK SCHEDULE 19
+  5.1 CONCLUSIONS 19
+  5.2 LIMITATIONS 19
+  5.3 WORK SCHEDULE FOR PHASE II 20
+APPENDIX 1  PHASE I IMPLEMENTATION 
+SUMMARY
+21
+APPENDIX 2  PHASE I EVALUATION 
+SUMMARY
+22
+
+vi
+APPENDIX 3  LIST OF PUBLICATIONS 23
+REFERENCES 24
+
+vii
+LIST OF TABLES
+Table 3.1  Selected age-specific reference values used by the normalization  
+engine    10
+Table 4.1  Phase I implementation and evaluation coverage    14
+Table 4.2  Component ablation results over 100 products    15
+Table 4.3  Age-sensitivity results relative to the adult configuration    15
+Table 4.4  Parameter robustness under coefficient perturbation    16
+Table 4.5  NOVA perturbation and reference-alignment results    16
+Table 4.6  Counterfactual analysis summary    17
+Table 4.7  Nutri-Score 2023 reference comparison    17
+
+viii
+LIST OF FIGURES
+Figure 3.1  NutriGuard-AI System Architecture    12
+
+ix
+LIST OF ABBREVIATIONS
+AI    Artificial Intelligence
+API    Application Programming Interface
+FSSAI    Food Safety and Standards Authority of India
+ICMR-NIN     Indian  Council  of  Medical  Research  –  National  Institute  of  
+Nutrition
+LLM    Large Language Model
+NOVA    NOVA food processing classification
+OCR    Optical Character Recognition
+PWA    Progressive Web App
+RAG    Retrieval-Augmented Generation
+RDA    Recommended Dietary Allowance
+UI    User Interface
+
+1
+CHAPTER 1
+INTRODUCTION
+1.1 GENERAL
+Packaged foods have become an important part of modern food consumption,  
+and their labels provide structured information such as energy, macronutrients,  
+ingredients,  additives,  and  other  nutritional  characteristics.  However,  
+interpreting a food label requires users to consider several different types of  
+information simultaneously, including nutrient quantities, serving information,  
+ingredient composition, processing characteristics, and product classification.  
+For many consumers, manually combining these heterogeneous factors can be  
+difficult  and  time-consuming.  The  increasing  availability  of  artificial  
+intelligence (AI), multimodal models, optical character recognition, retrieval-
+augmented generation, and large language models has created opportunities for  
+developing intelligent systems that can assist users in understanding food labels. 
+NutriGuard-AI is developed as an intelligent information system for assessing  
+Indian packaged foods in a transparent and structured manner. The system uses  
+multimodal label processing to obtain a structured representation of a product  
+and applies a deterministic scoring mechanism based on nutrition, ingredients,  
+processing,  additives,  NOVA  classification,  and  age-sensitive  factors.  The  
+numerical assessment is deliberately separated from the generative explanation  
+layer  so  that  the  final  score  is  reproducible  and  its  component-level  
+contributions can be inspected. 
+1.2 NEED FOR THE STUDY
+
+2
+The major need for this study arises from the difficulty of converting the large  
+amount  of  information  available  on  packaged-food  labels  into  an  
+understandable and consistent assessment. Existing AI-based nutrition systems  
+have  demonstrated  the  usefulness  of  multimodal  processing,  retrieval,  
+knowledge  graphs,  and  language  models,  but  many  primarily  focus  on  
+personalized  recommendations,  dietary  intervention,  or  natural-language  
+interpretation. In such systems, users may receive a useful explanation without  
+having clear visibility into how individual factors contribute to a numerical food  
+assessment. Therefore, there is a need for a system in which the numerical  
+reasoning process is explicit, decomposable, and reproducible rather than being  
+dependent on generated language alone. 
+The  study  therefore  focuses  on  developing  a  transparent  packaged-food  
+assessment framework that can combine multiple label characteristics within a  
+single  deterministic  mechanism.  In  addition  to  considering  nutritional  and  
+ingredient information, the proposed system incorporates processing, additives,  
+NOVA classification, and age-specific configurations for child, teen, adult, and  
+elderly groups. This approach makes it possible to examine how changes in  
+individual  factors  influence  the  computed  score  and  to  provide  controlled  
+“what-if” scenarios through counterfactual analysis. The study is intended to  
+establish the reproducibility and inspectability of the implemented system; it  
+does not claim clinical validity, health-outcome prediction, or superiority over  
+established nutritional scoring systems.
+1.3 OBJECTIVES OF THE STUDY
+The primary objective of the study is to develop an AI-assisted system capable  
+of analysing Indian packaged-food labels and presenting their information in a  
+structured  and  understandable  form.  The  system  aims  to  extract  relevant  
+information  from  food  labels,  including  nutritional  quantities,  ingredients,  
+
+3
+additives,  processing  characteristics,  product  category,  and  NOVA  
+classification. These extracted attributes are converted into a structured product  
+representation that can be processed by a deterministic scoring engine. The  
+system is designed to generate a bounded 0–100 assessment and expose the  
+contribution of individual scoring components, thereby improving transparency  
+and reproducibility. 
+A further objective is to provide age-aware and explainable assessment rather  
+than presenting only a single numerical value. The system supports child, teen,  
+adult,  and  elderly  configurations  and  enables  comparison  of  scores  under  
+different  age  parameters.  It  also  aims  to  generate  evidence-grounded  
+explanations  separately  from  numerical  scoring  and  provide  algorithmic  
+counterfactual  scenarios  that  demonstrate  how  selected  changes  to  product  
+characteristics can affect the computed score. Finally, the study evaluates the  
+implemented framework through deterministic verification, component ablation, 
+age  sensitivity,  NOVA  perturbation,  counterfactual  analysis,  missing-data  
+handling,  category  sensitivity,  and  statistical  analysis  over  the  available  
+evaluation records.
+
+4
+CHAPTER 2
+REVIEW OF LITERATURE
+2.1 INTRODUCTION
+Artificial Intelligence (AI) has increasingly been applied to food, nutrition, and  
+healthcare  applications  to  support  information  analysis,  personalization,  and 
+decision-making. Recent systems use technologies such as  Large Language  
+Models (LLMs), multimodal AI, Retrieval-Augmented Generation (RAG),  
+knowledge  graphs,  and  recommendation  systems  to  process  nutritional  
+information and generate user-oriented insights. These approaches demonstrate  
+that AI can combine different sources of food and nutrition information and  
+present the results in a more accessible form. 
+However, nutrition-related AI systems differ considerably in their objectives  
+and architectures. Some focus on personalized dietary recommendations, while  
+others  concentrate  on  clinical  intervention,  food  recognition,  or  knowledge-
+based  retrieval.  A  common  challenge  is  maintaining  transparency  in  the  
+numerical  reasoning  process.  A  generated  recommendation  may  be  
+understandable to the user while the contribution of individual nutritional or  
+food-label factors remains difficult to determine. This creates a need for systems 
+that combine AI-based information extraction and explanation with a clearly  
+defined and reproducible numerical assessment mechanism.
+2.2 EXISTING NUTRITION SCORING SYSTEMS
+Existing  AI-based  nutrition  systems  generally  process  food  and  dietary  
+information  using  multimodal  models,  recommendation  algorithms,  RAG  
+
+5
+pipelines, or knowledge graphs. These systems can integrate information such  
+as food descriptions, ingredients, nutrient profiles, images, user preferences, and 
+health-related requirements. For example, multimodal LLM-based systems can  
+create unified representations of food items using textual, visual, ingredient, and  
+nutritional information. 
+Despite these developments, many existing systems primarily target  dietary 
+recommendation or personalized nutrition guidance  rather than transparent  
+assessment  of  individual  packaged-food  products.  The  numerical  decision  
+process may also depend on complex models that make it difficult to identify  
+the exact influence of individual factors. 
+2.3 AI IN HEALTHCARE AND NUTRITION
+AI is increasingly being explored in healthcare and nutrition for applications  
+involving personalized recommendations, dietary planning, decision support,  
+and health-related information processing. In nutrition, AI can combine large  
+volumes  of  heterogeneous  information  and  assist  users  in  interpreting  
+nutritional  data.  Recent  research  has  particularly  explored  LLMs  and  RAG 
+systems because they can combine natural-language interaction with structured  
+knowledge  sources.  Research  on  precision  nutrition  also  identifies  domain-
+specific  adaptation,  knowledge  grounding,  interpretability,  and  reliable  
+deployment as important challenges for AI-based nutrition systems. 
+The use of AI in nutrition also introduces the requirement for  reliability and  
+explainability.  LLM-based  systems  can  generate  fluent  responses  but  may  
+suffer from hallucinations or insufficient grounding when factual information is  
+required. Knowledge graphs and RAG can improve access to structured domain  
+information,  while  deterministic  components  can  provide  more  predictable  
+numerical behavior. Recent work therefore explores combinations of structured  
+
+6
+knowledge,  multimodal  information,  and  generative  models  to  improve  
+nutrition-related decision support. NutriGuard-AI follows this general direction  
+but restricts its numerical reasoning to an explicit deterministic scoring engine  
+rather than allowing the generative model to act as the numerical authority.
+2.4 LITERATURE SURVEY
+2.4.1 Prasad et al. — 2026
+A.  Prasad,  A.  S.,  B.  R.,  and  V.  G.  proposed  “NutritionWise:  Converting 
+Nutritional  Labels  into  Personalized,  AI-Driven  Nutritional  Insights.”  The  
+system  is  designed  to  convert  complex  nutritional-label  information  into  
+personalized and understandable nutritional insights. It employs a multimodal  
+image-and-text processing architecture, where nutritional labels are processed  
+using  TrOCR  for  optical  character  recognition.  Large  language  models,  
+including LLaMA-3.2-1B and LLaMA-3-8B, are used to generate explanations  
+and  conversational  nutritional  support.  The  framework  further  incorporates  
+Retrieval-Augmented Generation (RAG), FAISS, and SentenceTransformer for  
+semantic  retrieval,  allergen  matching,  and  contextual  information  retrieval.  
+Nutritional information is supported using sources such as OpenFoodFacts and  
+WHO/FDA nutritional guidelines. The system also considers dietary suitability  
+and personalized nutrition requirements based on individual goals.
+2.4.2 Dindukurthi et al. — 2026
+V.  Dindukurthi,  D.  Jain,  A.  Tripathi,  J.  M.  Obbineni,  and  I.  Kandasamy  
+proposed “An Explainable Graph Retrieval Augmented Generation Framework  
+for Personalized Nutrition Recommendation.” The framework employs a Graph  
+Retrieval-Augmented  Generation  (GraphRAG)  architecture  with  a  Neo4j  
+knowledge  graph  representing  relationships  among  diseases,  nutrients,  food  
+items, symptoms, and demographic-specific Recommended Dietary Allowances  
+
+7
+(RDAs). A semantic ETL pipeline is used to integrate heterogeneous nutritional  
+and  clinical  datasets  and  resolve  terminology  differences  using  embedding-
+based alignment. During inference, the system retrieves nutritional requirements  
+from  the  graph  and  ranks  candidate  foods  using  a  deterministic  cosine-
+similarity-based ranking algorithm. The language model is restricted primarily  
+to  formatting  graph-validated  outputs  rather  than  performing  unconstrained  
+nutritional reasoning.
+2.4.3 Research Gap Identified from the Literature
+The  reviewed  literature  demonstrates  significant  progress  in  AI-based  
+nutritional-label  interpretation,  multimodal  food  analysis,  personalized  
+nutrition, Retrieval-Augmented Generation, knowledge graphs, and explainable  
+recommendation  systems.  NutritionWise  demonstrates  the  effectiveness  of  
+multimodal  label  processing  and  generative  AI  for  converting  nutritional  
+information into personalized and user-friendly insights, while Dindukurthi et  
+al. demonstrate how structured knowledge graphs and deterministic ranking can  
+improve  explainability  and  demographic  sensitivity  in  nutrition  
+recommendation.
+However,  both  approaches  primarily  address  nutritional  interpretation  or  
+personalized dietary recommendation rather than the problem of assigning a  
+transparent  and  reproducible  quality  score  to  an  individual  packaged-food  
+product. In particular, the reviewed works do not provide the same emphasis on  
+a  deterministic,  decomposable  scoring  mechanism  specifically  designed  for  
+Indian packaged foods, where multiple factors such as nutrient composition,  
+ingredients,  additives,  processing  level,  product  category,  and  NOVA  
+classification need to be considered together.
+
+8
+CHAPTER 3
+METHODOLOGY AND SYSTEM ARCHITECTURE
+3.1 INTRODUCTION
+NutriGuard-AI follows a structured methodology that converts packaged-food  
+label information into a transparent and age-aware assessment. The system first  
+extracts  and  organizes  label  information  such  as  nutrition,  ingredients,  
+processing,  additives,  product  category,  and  NOVA  classification.  This  
+structured  information  is  then  processed  by  a  deterministic  scoring  engine,  
+while  the  explanation  component  uses  stored  evidence  to  provide  
+understandable  results.  The  architecture  separates  numerical  scoring  from  
+generative  explanation  so  that  the  final  score  remains  reproducible  and  
+inspectable. 
+3.2 SYSTEM ARCHITECTURE
+The  NutriGuard-AI  architecture  is  organized  into  two  main  layers :  the  
+Intelligent Processing Layer  and the  Application and Presentation Layer . 
+The  Intelligent  Processing  Layer  handles  label  extraction,  data  structuring,  
+scoring,  and  age-based  assessment,  while  the  Application  and  Presentation  
+Layer  provides  explanations,  recommendations,  comparisons,  and  
+counterfactual insights to the user. This separation ensures that the generative  
+AI component does not act as the source of numerical truth. 
+3.3 LAYER 1 – INTELLIGENT PROCESSING LAYER
+The Intelligent Processing Layer is responsible for converting the food label  
+into structured information and calculating the food assessment. It receives label 
+
+9
+images or structured product data, extracts nutrition and ingredient information,  
+identifies processing, additives, category, and NOVA classification, and applies  
+the deterministic scoring function with the selected age group. The output is a  
+reproducible score in the range of 0–100. 
+3.4 LAYER 2 – APPLICATION AND PRESENTATION LAYER
+The  Application  and  Presentation  Layer  converts  the  processed  results  into 
+meaningful information for the user. It presents the final score, component-wise  
+contributions, age-sensitive results, evidence-grounded explanations, ingredient  
+and  allergen  information,  comparisons,  and  counterfactual  improvement  
+suggestions.  The  explanation  is  generated  separately  from  the  numerical  
+calculation and therefore does not modify the deterministic score. 
+3.5 MODULE 1 – LABEL ANALYSIS MODULE
+The Label Analysis Module accepts food-label images or structured information  
+and identifies important product attributes. It extracts and organizes nutritional  
+values, ingredients, additives, processing-related information, product category,  
+and  NOVA  classification  into  a  structured  product  representation.  This  
+structured representation acts as the input for the subsequent scoring process. 
+3.6 MODULE 2 – DETERMINISTIC SCORING MODULE
+The Deterministic Scoring Module calculates the food score using nutrition,  
+ingredient, processing, additive, and NOVA factors. The scoring components  
+are combined using predefined algorithmic parameters, followed by configured  
+penalties and final score clipping to the 0–100 range. Since the calculation is  
+deterministic,  the  same  structured  product  information  and  configuration  
+produce the same numerical result. 
+3.7 MODULE 3 – AGE AND PERSONALIZATION MODULE
+
+10
+The Age and Personalization Module adapts the assessment according to four  
+age configurations:  child, teen, adult, and elderly . Age-sensitive nutritional  
+thresholds  are  applied  while  keeping  the  underlying  product  representation  
+unchanged. This allows the system to calculate and compare how the same  
+packaged food is assessed for different age groups. 
+3.8 MODULE 4 – EXPLANATION AND RECOMMENDATION 
+MODULE
+3.9 FOUR-PILLAR NUTRIGUARD SCORING FRAMEWORK
+NutriGuard-AI  decomposes  the  assessment  into  four  deterministic  pillars:  
+nutrition, ingredients, processing, and additive exposure. The implemented pre-
+adjustment score is computed as S_pre = M_NOVA × (0.20I + 0.15P + 0.30A)  
++ 0.35N, followed by configured safeguards and clipping to the 0–100 range.  
+The coefficients are fixed engineering parameters of the current prototype rather  
+than values learned from health-outcome data.
+3.10 AGE-AWARE NUTRIENT NORMALIZATION
+For nutrient i and age group a, the normalized exposure is p(i,a) = (x_i / R_i,a)  
+× 100, where x_i is the declared nutrient amount and R_i,a is the configured  
+age-specific reference amount. Negative nutrient dimensions use exponential  
+penalties,  while  positive  nutrient  contributions  use  saturating  functions.  
+Representative  prototype  references  cover  total  sugar,  added  sugar,  sodium, 
+saturated fat, trans fat, caffeine, and fiber for child, teen, adult, and elderly  
+configurations.
+Table 3.1  Selected age-specific reference values used by the normalization engine
+Nutrient Child Teen Adult Elderly
+Total sugar (g) 34 64 47 48
+Added sugar (g) 17 32 23 24
+
+11
+Sodium (mg) 1200 1800 2000 2000
+Saturated fat (g) 15 28 21 21
+Trans fat (g) 1.5 2.8 2.0 2.0
+Caffeine (mg) 40 100 400 200
+Fiber (g) 23 33 28 28
+3.11 NOVA PROCESSING ADJUSTMENT
+The  prototype  applies  NOVA  multipliers  of  1.00,  0.90,  0.70,  and  0.50  for  
+NOVA 1 through NOVA 4, with an additional pre-aggregation cap for NOVA-4 
+cases.  NOVA  therefore  operates  as  a  high-leverage  processing  adjustment  
+within the deterministic scoring pipeline.
+3.12 SAFETY AND DATA-QUALITY SAFEGUARDS
+The  implementation  includes  checks  for  undeclared  ingredients,  undeclared  
+mandatory nutrients, undeclared allergens, and amplified-exposure categories.  
+Missing  and  alias  nutrient  fields  are  normalized  before  scoring.  These  
+safeguards are implementation controls and are not presented as clinical cutoffs  
+or toxicological risk estimates.
+3.13 COUNTERFACTUAL ANALYSIS
+Counterfactual analysis modifies an eligible product attribute and recomputes  
+the  score  using  ΔS  =  S(X′,a)  −  S(X,a).  The  mechanism  exposes  how  the  
+implemented scoring function responds to controlled changes in attributes such  
+as added sugar, saturated fat, sodium, total sugar, or calories. These scenarios  
+describe  model-internal  behavior  and  are  not  causal  estimates  of  health  
+outcomes.
+The Explanation and Recommendation Module presents the calculated result in  
+an understandable form using evidence-grounded information. It provides score  
+explanations,  component  contributions,  comparisons,  and  algorithmic  
+counterfactual suggestions showing how changes to selected product factors  
+
+12
+could  affect  the  score.  These  counterfactuals  are  treated  as  computational  
+scenarios rather than predictions of real-world health outcomes. 
+Figure 3.1  NutriGuard-AI System Architecture
+
+13
+CHAPTER 4
+IMPLEMENTATION AND PRELIMINARY RESULTS
+4.1 DATASET AND TECHNOLOGY STACK
+The  evaluation  dataset  consists  of  100  packaged-food  product  records  
+maintained  within  the  project  dataset.  The  dataset  is  used  as  an  evaluation 
+collection  and  is  not  considered  statistically  representative  of  the  complete  
+Indian  packaged-food  market.  The  application  is  implemented  using  React, 
+TypeScript, Vite, Tailwind CSS, and client-side Gemini integration , with  
+project  data,  ingredient  information,  additive  information,  and  evidence  
+resources maintained as application data resources.
+Internal  evaluation  was  performed  to  verify  the  consistency  and  behavioral 
+properties of the implemented scoring system. The evaluation checked score  
+bounds,  grade  generation,  deterministic  repeatability,  execution  success,  
+component  ablation,  age  sensitivity,  NOVA  perturbation,  counterfactual  
+behavior,  missing-data  handling,  category  sensitivity,  and  statistical  
+comparisons. All 100 evaluated records passed the basic bounded-score, grade-
+generation, and determinism checks with zero crashes. 
+4.2 IMPLEMENTATION MODULES
+The implementation is organized into an acquisition path, structured product  
+representation, deterministic assessment, evidence/explanation, and application  
+layers.  The  current  web  application  uses  React  and  TypeScript  with  Vite,  
+Tailwind  CSS,  Zustand,  Supabase  data  access,  and  a  client-side  Gemini  
+integration for multimodal label interpretation and explanation.
+
+14
+4.3 USER INTERFACE AND OUTPUT
+The application provides product browsing, label scanning, age-wise scores,  
+ingredient  and  allergen  information,  component-wise  score  breakdowns,  
+evidence-oriented  explanations,  comparisons,  and  counterfactual-oriented  
+outputs. Existing catalogue analysis can continue offline as a Progressive Web  
+App, while image-based extraction and generated evidence explanations require  
+an active connection to the configured Gemini service.
+Table 4.1  Phase I implementation and evaluation coverage
+Area Phase I status
+Web application Implemented
+Label interpretation
+Implemented with configured Gemini 
+integration
+Deterministic scoring Implemented
+Age profiles Child, teen, adult, elderly
+Evidence-oriented explanation Implemented
+Counterfactual analysis Implemented
+Evaluation collection 100 structured product records
+Deterministic verification 100/100 basic checks passed
+4.4 EVALUATION METHODOLOGY
+The evaluation collection contains 100 structured packaged-food records. The  
+collection  is  used  as  a  software  evaluation  set  and  is  not  interpreted  as  a  
+statistically  representative  survey  of  the  Indian  packaged-food  market.  The  
+evaluation  scripts  cover  score  bounds,  repeatability,  execution  success,  
+component  ablation,  age  sensitivity,  coefficient  perturbation,  NOVA  
+perturbation,  counterfactual  behavior,  missing-data  handling,  category  
+sensitivity, and reference comparison.
+4.5 SOFTWARE VERIFICATION
+
+15
+All  100  records  passed  the  basic  bounded-score,  grade-generation,  and  
+deterministic-repeatability  checks  with  zero  crashes.  The  result  supports  
+reproducible  execution  of  the  implemented  scoring  function  on  the  tested  
+collection.
+Table 4.2  Component ablation results over 100 products
+Component removed Mean score change
+Nutrition 20.52
+NOVA 16.50
+Additives 5.52
+Ingredients 5.07
+Age 3.31
+Processing 0.28
+4.6 COMPONENT ABLATION RESULTS
+Component removal produced mean paired score differences of 20.52 points for  
+nutrition, 16.50 for NOVA, 5.52 for additives, 5.07 for ingredients, 3.31 for age, 
+and  0.28  for  processing.  The  ablation  analysis  indicates  that  nutrition  and  
+NOVA are the most influential configured components in this implementation.  
+These are model-sensitivity findings and should not be interpreted as causal  
+nutritional importance.
+Table 4.3  Age-sensitivity results relative to the adult configuration
+Comparison Mean difference
+Adult − Child 4.31
+Adult − Teen −2.09
+Adult − Elderly −0.23
+4.7 AGE-SENSITIVITY RESULTS
+Recomputing the same products under different age configurations produced  
+mean  adult–child,  adult–teen,  and  adult–elderly  score  differences  of  4.31,  
+−2.09, and −0.23 points, respectively. The age parameter therefore changes the  
+
+16
+computed  assessment  while  the  underlying  product  representation  remains  
+fixed.
+Table 4.4  Parameter robustness under coefficient perturbation
+Measure Result
+Perturbation ±50%
+Spearman rank correlation 0.968–0.998
+Interpretation
+High product-ranking stability; grade thresholds 
+remain boundary-sensitive
+4.8 PARAMETER ROBUSTNESS
+Coefficient perturbation of ±50% preserved high product-ranking stability, with  
+Spearman  rank  correlations  between  0.968  and  0.998  across  the  tested  
+perturbations. This indicates stable ordering under broad coefficient changes,  
+while discrete grade boundaries remain sensitive near threshold transitions.
+Table 4.5  NOVA perturbation and reference-alignment results
+Measure Result
+Mean score swing 35.58 points
+Range 22–53 points
+Records changing grade 100/100
+Continuous score vs inverse NOVA ρ = 0.697
+Grade rank vs NOVA ρ = 0.721
+4.9 NOVA PERTURBATION AND ALIGNMENT
+Controlled NOVA perturbation produced a mean score swing of 35.58 points,  
+with a median of 35.00, standard deviation of 5.90, and range of 22–53 points;  
+every  evaluated  record  changed  grade  under  the  controlled  perturbation.  
+Recorded NOVA labels were highly imbalanced at 15 NOVA-1, 0 NOVA-2, 5  
+NOVA-3, and 80 NOVA-4. The continuous score showed Spearman correlation  
+of 0.697 with inverse NOVA group, and grade rank showed correlation of  
+
+17
+0.721. These statistics are treated as descriptive reference alignment because the  
+dataset is skewed.
+Table 4.6  Counterfactual analysis summary
+Measure Result
+Records evaluated 100
+Successful counterfactuals 53
+No applicable modification 47
+Improvement range 1–9 points
+Mean improvement 3.36 points
+Median improvement 3.00 points
+4.10 COUNTERFACTUAL ANALYSIS
+Counterfactual analysis was applicable to all 100 records, with 53 successfully  
+processed and 47 having no applicable modification case. Among processed  
+cases, score improvements ranged from 1 to 9 points, with mean 3.36, median  
+3.00, and standard deviation 1.95. All 53 processed cases exhibited a grade  
+transition.  Dominant  modification  factors  were  primarily  added  sugar  and  
+saturated fat, followed by total sugar, sodium, and calories.
+Table 4.7  Nutri-Score 2023 reference comparison
+Measure Result
+Robust cases 56/100
+FVL-dependent cases 44/100
+Continuous score vs inverse class ρ = 0.687
+Significance p = 4.86 × 10 ⁹⁻
+Five-class exact agreement 28.6%
+Cohen's κ 0.193
+4.11 NUTRI-SCORE 2023 REFERENCE COMPARISON
+Nutri-Score 2023 classification was robust for 56 of the 100 evaluated products,  
+while 44 remained dependent on fruit, vegetable, and legume information that  
+
+18
+was  unavailable  for  those  products.  For  the  56  robust  cases,  continuous  
+NutriGuard score correlated with inverse Nutri-Score class at ρ = 0.687 with p = 
+4.86 × 10 9, while exact five-class agreement was 28.6% with Cohen’s κ =⁻  
+0.193.  This  comparison  is  an  alignment/contrast  analysis  because  the  two  
+systems encode different constructs and is not a clinical validation.
+
+19
+CHAPTER 5
+CONCLUSIONS AND WORK SCHEDULE
+5.1 CONCLUSIONS
+NutriGuard-AI provides an age-aware and explainable approach for assessing  
+Indian packaged-food labels by combining multimodal information extraction  
+with  a  deterministic  scoring  mechanism.  The  system  considers  nutrition,  
+ingredients, processing, additives, NOVA classification, and age-related factors  
+to  generate  a  transparent  0–100  assessment.  The  implemented  architecture  
+separates numerical  scoring  from evidence-grounded  explanation,  improving  
+reproducibility  and  allowing  individual  scoring  factors  to  be  examined  
+independently..
+The present evaluation is limited by the use of 100 product records and should  
+not  be  interpreted  as  a  representative  survey  of  the  Indian  packaged-food  
+market.  Age-specific  references,  coefficients,  thresholds,  and  penalties  are  
+engineering parameters of the current prototype rather than clinically calibrated  
+quantities.  NOVA  is  a  high-leverage  dependency  and  the  recorded  NOVA  
+distribution is imbalanced. Upstream label-extraction errors can propagate to the 
+deterministic  engine,  while  OCR  accuracy  has  not  yet  been  benchmarked  
+quantitatively. Explanation quality has not been evaluated using standardized  
+factuality  measures  or  expert-rating  protocols.  Internal  B1–B4  variants  are  
+controlled  software  comparisons  rather  than  external  published  baselines.  
+Counterfactual results characterize changes in the model’s own score and do not  
+represent real-world health effects.
+5.3 WORK SCHEDULE FOR PHASE II
+
+20
+Phase II will focus on refinement, validation, and final presentation. Planned  
+activities include improving the scoring and interface components, expanding  
+and  independently  curating  the  evaluation  dataset,  benchmarking  label  
+extraction using field-level precision, recall, and F1, obtaining more balanced  
+NOVA annotations, evaluating explanation faithfulness with domain experts,  
+comparing  against  established  external  scoring  systems  on  matched  inputs,  
+calibrating  parameters  through  transparent  expert-  or  outcome-based  
+procedures,  adding  uncertainty  estimation  for  incomplete  or  ambiguous  
+extraction, and versioning the dataset, scoring configuration, ingredient rules,  
+additive mappings, and evaluation scripts. Final documentation, result analysis,  
+presentation preparation, and project submission will be completed after these  
+activities.
+
+21
+APPENDIX 1
+Phase I implementation summary
+NutriGuard-AI was implemented as a web-based intelligent information system  
+for  packaged-food  assessment.  Phase  I  covers  product  catalogue  analysis,  
+structured food-label representation, deterministic four-pillar scoring, age-aware  
+assessment for child, teen, adult, and elderly profiles, NOVA-based processing  
+adjustment, ingredient and additive safeguards, evidence-oriented explanations,  
+comparisons, and counterfactual score analysis.
+The  implementation  separates  generative  information  acquisition  and  
+explanation from numerical assessment. The deterministic engine is responsible  
+for the numerical score, while the generative layer presents information and  
+explanations without changing that score. This architectural boundary supports  
+reproducibility and inspectability.
+
+22
+APPENDIX 2
+Phase I evaluation summary
+Evaluation item Phase I evidence
+Dataset 100 structured packaged-food records
+Score bounds
+All tested records within configured 0–100 
+range
+Determinism 100/100 records passed repeatability checks
+Execution stability Zero crashes in the basic evaluation run
+Component sensitivity
+Nutrition and NOVA showed the largest mean 
+effects
+Age sensitivity Adult–child mean difference = 4.31 points
+Coefficient robustness Spearman ρ = 0.968–0.998
+NOVA perturbation Mean score swing = 35.58 points
+Counterfactuals 53 successful cases; 1–9 point improvements
+Nutri-Score comparison 56 robust cases; ρ = 0.687; κ = 0.193
+
+23
+APPENDIX 3
+List of Publications
+No paper from this project has been formally published at the time of Phase I  
+submission. The NutriGuard-AI manuscript has been prepared for conference-
+oriented submission and remains subject to the official review and acceptance  
+process.
+
+24
+REFERENCES
+[1] F. Y. Assiri, M. D. Alahmadi, M. A. Almuashi, and A. M. Almansour,  
+“Extract nutritional information from bilingual food labels using large language  
+models,”  Journal  of  Imaging,  vol.  11,  no.  8,  Art.  no.  271,  2025,  doi:  
+10.3390/jimaging11080271.
+[2] X. Deng and W. Tu, “Personalized nutrition-aware dietary recommendation  
+with multimodal large language models,” IEEE Access, vol. 14, pp. 21791–
+21804, 2026, doi: 10.1109/ACCESS.2026.3660702.
+[3] V. Dindukurthi, D. Jain, A. Tripathi, J. M. Obbineni, and I. Kandasamy, “An 
+explainable graph retrieval augmented generation framework for personalized  
+nutrition recommendation,” Frontiers in Artificial Intelligence, vol. 9, Art. no.  
+1808444, 2026, doi: 10.3389/frai.2026.1808444.
+[4] G. Hu, N. Flexner, M. V. Tiscornia, and M. R. L’Abbe, “Accelerating the  
+classification  of  NOVA  food  processing  levels  using  a  fine-tuned  language 
+model: A multi-country study,” Nutrients, vol. 15, no. 19, Art. no. 4167, 2023,  
+doi: 10.3390/nu15194167.
+[5] Indian Council of Medical Research–National Institute of Nutrition, Dietary  
+Guidelines for Indians–2024. Hyderabad, India, 2024
+[6] A. Prasad, A. S., B. R., and V. G., “NutritionWise: Converting nutritional  
+labels  into  personalized,  AI-driven  nutritional  insights,”  Procedia  Computer  
+Science, vol. 283, pp. 3307–3317, 2026, doi: 10.1016/j.procs.2026.06.394.
+[7]  Sante  publique  France,  “Nutri-Score  2023:  Calculation  methods  for  the 
+updated algorithm,” Scientific and technical Q&A, 2024.
+[8] D. C. Shikara, A. S. Bhuvaneshwari, C. Meghana, G. Neethu Chandra, and  
+S.  Meghana,  “NutriCoach:  A  multi-agent  AI  framework  for  personalized  
+nutrition  recommendation  using  RAG  and  LLMs,”  International  Journal  of  
+Artificial  Intelligence  &  Applications,  vol.  5,  no.  1,  pp.  31–41,  2026,  doi:  
+10.34218/IJAIAP 05 01 004.
+
+25
+[9] Y. Wang, Y. Yang, G. Melo Guerrero, R. M. Nayga, Jr., and A. Zahid, “An  
+LLM-RAG  approach  for  Healthy  Eating  Index-informed  personalized  food  
+recommendations,” arXiv preprint arXiv:2605.15213, 2026.
+[10] J. Wu, R. Yan, H. Luo, D. Liu, M. K. Townsend, L. S. Hartwig, D.  
+Milketinas,  X.  Hu,  and  C.  Yang,  “NutriOrion:  A  hierarchical  multi-agent  
+framework  for  personalized  nutrition  intervention  grounded  in  clinical  
+guidelines,” arXiv preprint arXiv:2602.18650, 2026.
+
+KPR Institute of Engineering and Technology
+Quick Submit
+Quick Submit
+NUTRIGUARD AI
+Nandhakishore K R
+Document Details
+Submission ID
+trn:oid:::1:3652685803
+Submission Date
+Sep 18, 2026, 12:46 PM GMT+5:30
+Download Date
+Sep 18, 2026, 12:49 PM GMT+5:30
+File Name
+NutriguardAI.pdf
+File Size
+228.5 KB
+6 Pages
+3,904 Words
+24,685 Characters
+Page 1 of 10 - Cover Page
+Submission ID
+trn:oid:::1:3652685803
+Page 1 of 10 - Cover Page
+Submission ID
+trn:oid:::1:3652685803
+
+
+10%
+Overall Similarity
+The combined total of all matches, including overlapping sources, for each database.
+Exclusions
+7 Excluded Sources
+Match Groups
+23
+Not Cited or Quoted  7%
+Matches with neither in-text citation nor quotation marks
+1
+Missing Quotations  0%
+Matches that are still very similar to source material
+6
+Missing Citation  3%
+Matches that have quotation marks, but no in-text citation
+0
+Cited and Quoted  0%
+Matches with in-text citation present, but no quotation marks
+Top Sources
+7%
+Internet sources
+8%
+Publications
+6%
+Submitted works (Student Papers)
+Integrity Flags
+0 Integrity Flags for Review
+No suspicious text manipulations found.
+Our system's algorithms look deeply at a document for any inconsistencies that 
+would set it apart from a normal submission. If we notice something strange, we flag 
+it for you to review.
+A Flag is not necessarily an indicator of a problem. However, we'd recommend you 
+focus your attention there for further review.
+Page 2 of 10 - Integrity Overview
+Submission ID
+trn:oid:::1:3652685803
+Page 2 of 10 - Integrity Overview
+Submission ID
+trn:oid:::1:3652685803
+
+
+Match Groups
+23
+Not Cited or Quoted  7%
+Matches with neither in-text citation nor quotation marks
+1
+Missing Quotations  0%
+Matches that are still very similar to source material
+6
+Missing Citation  3%
+Matches that have quotation marks, but no in-text citation
+0
+Cited and Quoted  0%
+Matches with in-text citation present, but no quotation marks
+Top Sources
+7%
+Internet sources
+8%
+Publications
+6%
+Submitted works (Student Papers)
+Top Sources
+The sources with the highest number of matches within the submission. Overlapping sources will not be displayed.
+1
+Publication
+Nalin Arora, Sumit Bhagat, Riya Dhama, Ganesh Bagler. "Machine learning and n…
+1%
+2
+Internet
+www.kpriet.edu.in
+<1%
+3
+Publication
+Amirah Saleh M Alhumaidhi, Putu Harry Gunawan, Moch Arif Bijaksana. "Automa…
+<1%
+4
+Student papers
+VinUniversity
+<1%
+5
+Internet
+arxiv.org
+<1%
+6
+Student papers
+National Law University  New Delhi
+<1%
+7
+Publication
+Anu Prasad, Aparna S, Bhamini R, Veena G. "NutritionWise: Converting Nutritiona…
+<1%
+8
+Student papers
+Panipat Institute of Engineering & Technology
+<1%
+9
+Student papers
+Unviersidad de Granada
+<1%
+10
+Internet
+www.jcdr.net
+<1%
+Page 3 of 10 - Integrity Overview
+Submission ID
+trn:oid:::1:3652685803
+Page 3 of 10 - Integrity Overview
+Submission ID
+trn:oid:::1:3652685803
+
+
+11
+Publication
+Shilpa Adke, Swati Bhavsar. "A Causal- and Ontology-Guided Temporal Graph Rec…
+<1%
+12
+Internet
+www.lidsen.com
+<1%
+13
+Publication
+Gopichand Talluri. "Stress-Testing LLM-Based Fraud Detection Pipelines Under Ad…
+<1%
+14
+Student papers
+Texas A&M University, College Station
+<1%
+15
+Publication
+Fatmah Y. Assiri, Mohammad D. Alahmadi, Mohammed A. Almuashi, Ayidh M. Al…
+<1%
+16
+Publication
+Hatice Merve Bayram, Sedat Arslan, Arda Ozturkcan. "Can machines detect ultra-…
+<1%
+17
+Internet
+arsa.technology
+<1%
+18
+Publication
+Xiwen Deng, Wenzhe Tu. "Personalized Nutrition-Aware Dietary Recommendatio…
+<1%
+19
+Internet
+www.dm.gov.ae
+<1%
+20
+Publication
+Deepak Tawali, Nilima Ahire, Viveek Kapor. "Automation Tool for Grievances Usin…
+<1%
+21
+Student papers
+University of Ulster
+<1%
+22
+Internet
+www.mdpi.com
+<1%
+Page 4 of 10 - Integrity Overview
+Submission ID
+trn:oid:::1:3652685803
+Page 4 of 10 - Integrity Overview
+Submission ID
+trn:oid:::1:3652685803
+
+
+NutriGuard-AI: An Age-Aware, Evidence-Grounded
+Food Label Assistant for Indian Packaged Foods
+1st Vishnu Priya K
+Department of Computer Science
+KPR Institute of Engineering
+and Technology
+Coimbatore, India
+bvishnu2731@gmail.com
+2nd Nandha Kishore K B
+Department of Computer Science
+KPR Institute of Engineering
+and Technology
+Coimbatore, India
+nandhakishorekb2005@gmail.com
+3rd Nandha Kumar K B
+Department of Computer Science
+KPR Institute of Engineering
+and Technology
+Coimbatore, India
+nandhakumarkb2005@gmail.com
+4th Raj Kumar Yadav
+Department of Computer Science
+KPR Institute of Engineering
+and Technology
+Coimbatore, India
+rajkumarydvjr656@gmail.com
+5th Maulya H
+Department of Computer Science
+KPR Institute of Engineering
+and Technology
+Coimbatore, India
+maulyahemakumar2005@gmail.
+com
+Abstract—Packaged-food labels contain nutritional, ingredient,
+additive, allergen, and processing information as separate signals
+that are difficult to integrate consistently. Existing AI nutrition
+systems commonly emphasize extraction, recommendation, or
+natural-language interpretation, while the numerical assessment
+pathway can remain difficult to inspect and reproduce. This
+paper presents NutriGuard-AI, an age-aware framework for
+deterministic assessment of Indian packaged-food labels. Mul-
+timodal label interpretation is used for information acquisition
+and evidence-oriented explanation, while a separate deterministic
+engine performs numerical assessment. The engine combines four
+assessment pillars—nutrition, ingredients, processing, and addi-
+tive exposure—with age-specific reference-intake normalization,
+a NOV A-based processing adjustment, data-quality safeguards,
+and counterfactual score analysis.
+A reproducible evaluation was conducted on 100 structured
+product records using software verification, component ablation,
+age sensitivity, coefficient perturbation, controlled NOV A pertur-
+bation, counterfactual analysis, missing-data handling, category
+sensitivity, and paired statistical tests. All 100 records produced
+bounded and deterministic scores. Removing nutrition and NOV A
+components produced mean score changes of 20.52 and 16.50
+points, respectively, while the age component produced a mean
+change of 3.31 points. Coefficient perturbation of±50%pre-
+served product-ranking correlations between 0.968 and 0.998.
+Controlled NOV A perturbation produced a mean score swing
+of 35.58 points and changed the grade of all records. On
+56 products with robust Nutri-Score 2023 classification, the
+continuous NutriGuard score correlated with inverse Nutri-
+Score class atρ= 0.687(p= 4.86×10 −9), while exact
+five-class agreement was 28.6% (κ= 0.193). These findings
+characterize reproducibility, sensitivity, and internal consistency
+of the implemented framework; they do not establish clinical
+validity, health-outcome superiority, or population-level effects.
+Index Terms—nutritional assessment, packaged food, explain-
+able AI, multimodal AI, deterministic scoring, age-aware nor-
+malization, NOV A, counterfactual analysis
+I. INTRODUCTION
+Food labels provide consumers with structured information
+about energy, macronutrients, sugars, sodium, fats, ingredients,
+additives, allergens, serving sizes, and processing character-
+istics. Interpreting these fields together is difficult because
+information is distributed across tables and ingredient lists, and
+the importance of an exposure depends partly on demographic
+context. A useful computational assistant must therefore move
+beyond isolated nutrient extraction and combine heterogeneous
+signals into a single, interpretable, and reproducible assess-
+ment.
+Recent AI systems for nutrition combine multimodal
+extraction, retrieval-augmented generation (RAG), knowl-
+edge graphs, and large language models (LLMs). Assiri et
+al. demonstrated automated nutritional-information extraction
+from bilingual food labels using GPT-4o, GPT-4V , and Gem-
+ini [1]. Dindukurthi et al. proposed an explainable GraphRAG
+framework with structured ranking beneath an LLM expla-
+nation layer [2]. Hu et al. demonstrated language-model-
+based NOV A classification from ingredient text [3]. Other
+systems address clinical nutrition intervention, multimodal
+recommendation, Healthy Eating Index-informed recommen-
+dation, and multi-agent nutrition coaching [4], [6]–[8]. These
+works establish useful individual capabilities, but they gen-
+erally emphasize extraction, recommendation, intervention, or
+processing classification rather than a decomposable numerical
+score for a single packaged-food label.
+Explainability is a second challenge. A generated recom-
+mendation may be persuasive while providing limited visibil-
+ity into how individual label attributes affected a numerical
+2
+2
+2
+7
+8
+Page 5 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
+Page 5 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
+
+
+outcome. NutriGuard-AI therefore separates information ac-
+quisition and language generation from numerical reasoning.
+The numerical engine receives a structured representation
+and configuration and produces a deterministic score; the
+explanation layer receives the already-computed result and
+evidence references without modifying the score.
+This paper addresses four research questions:
+1) Can nutrition, ingredient, processing, and additive infor-
+mation be integrated through a deterministic multi-pillar
+scoring mechanism?
+2) How does age-specific reference-intake normalization
+affect packaged-food scores?
+3) Can generative AI be restricted to label interpretation
+and evidence-oriented explanation while numerical as-
+sessment remains deterministic?
+4) Can counterfactual score modification provide an inter-
+pretable view of influential attributes?
+The contributions are:
+1) A transparent, four-pillar, age-aware deterministic scor-
+ing formulation.
+2) An architecture that separates multimodal extraction and
+evidence-oriented explanation from numerical computa-
+tion.
+3) A reproducible behavioral evaluation over 100 product
+records.
+4) An explicit validation hierarchy distinguishing imple-
+mentation evidence from nutritional and clinical validity
+evidence.
+II. RELATEDWORK
+A. AI-Based Food-Label Extraction
+AI-based food-label extraction has established that multi-
+modal models can convert label images into structured nutri-
+tional information, but extraction alone does not define a repro-
+ducible scoring mechanism [1]. Assiri et al. investigated GPT-
+4o, GPT-4V , and Gemini for extracting nutritional information
+from bilingual Arabic–English labels using a manually curated
+dataset of 294 labels [1]. Their results establish the feasibility
+of automated extraction while showing that structured post-
+processing is still required. NutriGuard-AI treats extraction as
+an upstream information-acquisition stage rather than as the
+final decision mechanism.
+B. Personalized and Structured Nutrition Systems
+Dindukurthi et al. proposed a graph-centric personalized-
+nutrition framework combining structured graph retrieval and
+deterministic ranking with an LLM explanation layer [2].
+Wu et al. introduced NutriOrion, a hierarchical multi-agent
+framework grounded in clinical guidelines for personalized
+nutrition intervention, evaluated on a clinical cohort [4]. Prasad
+et al. presented NutritionWise, combining OCR, retrieval, and
+LLM-based nutritional insight generation for label interpreta-
+tion [5]. Deng and Tu proposed a multimodal LLM framework
+for nutrition-aware dietary recommendation [6], Wang et al.
+investigated an LLM-RAG approach informed by the Healthy
+Eating Index using NHANES/FPED data [7], and Shikara et
+al. presented NutriCoach, a multi-agent RAG framework for
+personalized recommendation [8].
+These systems collectively demonstrate that multimodal
+extraction, retrieval, and generative reasoning are useful for
+nutrition applications, but their primary objectives are rec-
+ommendation or intervention rather than a decomposable,
+numerically transparent packaged-food score.
+NutritionWise is particularly close in problem setting be-
+cause it converts nutritional labels into personalized AI-driven
+insights using multimodal processing, OCR, retrieval, and
+LLMs [5]. NutriGuard-AI differs in emphasis: its central
+object is a decomposable numerical assessment whose com-
+putation is deterministic.
+C. Food Processing and NOVA Classification
+Hu et al. used a fine-tuned language model for automated
+NOV A classification from ingredient-list text across several
+national food databases [3], showing that processing level is a
+learnable and operationally consequential signal. NutriGuard-
+AI instead uses NOV A as one operational dimension within a
+broader deterministic score. The distinction is therefore not
+the use of AI for nutrition itself, but the combination of
+label-oriented multimodal acquisition, age-aware normaliza-
+tion, deterministic multi-factor scoring, perturbation analysis,
+and separated evidence-oriented explanation.
+Table I positions NutriGuard-AI against representative re-
+cent systems. The comparison is architectural and methodolog-
+ical; reported datasets and validation protocols are not directly
+comparable and should not be read as a claim of superiority.
+III. PROPOSEDMETHODOLOGY
+A. Problem Formulation
+A packaged-food label is represented as
+X={N, I, A, P, L},(1)
+whereNdenotes nutrient information,Iingredient infor-
+mation,Aadditive information,Pprocessing information, and
+Llabel metadata such as serving size, allergens, and category.
+For age group
+a∈ {child,teen,adult,elderly},(2)
+the objective is to compute a bounded assessment
+S(X, a)∈[0,100].(3)
+Generative AI may transform an image into structured
+label information or formulate an explanation, but it does
+not directly select the final numerical score. The architectural
+boundary is therefore:
+Generative AI→Interpretation/Explanation,(4)
+while
+Deterministic Engine→Numerical Assessment.(5)
+15
+15
+16
+17
+22
+Page 6 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
+Page 6 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
+
+
+TABLE I
+COMPARISON WITHRECENTAI-ASSISTEDNUTRITION ANDFOOD-LABELSYSTEMS
+Work Architecture Transparency Focus Validation Focus
+Assiri et al. Multimodal LLM Extraction Extraction accuracy
+Dindukurthi et al. GraphRAG + KG Ranking within graph Case-study ranking
+Wu et al. Hierarchical multi-agent Clinical intervention Clinical evaluation
+NutritionWise OCR + RAG + LLM Text/retrieval Nutrition composition metrics
+Hu et al. Fine-tuned LM classifier NOV A class only Classification accuracy
+NutriGuard-AI 4-pillar deterministic + RAG Decomposable reference alignment Sensitivity, deterministic behavior
+TABLE II
+REPRESENTATIVEAGE-SPECIFICREFERENCEVALUESUSED BY THE
+PROTOTYPE
+Nutrient Child Teen Adult Elderly
+Total sugar (g) 34 64 47 48
+Added sugar (g) 17 32 23 24
+Sodium (mg) 1200 1800 2000 2000
+Saturated fat (g) 15 28 21 21
+Trans fat (g) 1.5 2.8 2.0 2.0
+Caffeine (mg) 40 100 400 200
+Fiber (g) 23 33 28 28
+B. Label Acquisition and Structured Representation
+A multimodal language model interprets food-label images
+and produces structured fields covering product category,
+serving size, energy, nutrient values, ingredient text, additives,
+allergens, and other available label content.
+Unit conversion, serving-size interpretation, nutrient-name
+normalization, and missing-field checks are performed before
+scoring. This representation makes the downstream scoring
+function independent of the wording of an explanation.
+C. Age-Aware Nutrient Normalization
+For nutrientiwith observed amountx i and age-specific
+reference amountR i,a, normalized exposure is
+pi,a = xi
+Ri,a
+×100.(6)
+Negative nutrient dimensions use an exponential penalty:
+si = 100 exp(−kipi,a),(7)
+wherek i is a configured nutrient-specific coefficient.
+Positive nutrient contributions use corresponding saturating
+rules. The current prototype uses representative age-specific
+reference values for total sugar, added sugar, sodium, saturated
+fat, trans fat, caffeine, and fiber; these are computational
+parameters rather than universal dietary recommendations.
+D. Four-Pillar Deterministic Scoring
+The four assessment pillars are
+N=f N(nutrients),(8)
+I=f I(ingredients),(9)
+P=f P (processing),(10)
+and
+A=f A(additives).(11)
+The pre-adjustment score is
+Spre =M NOV A(0.20I+ 0.15P+ 0.30A) + 0.35N.(12)
+Configured danger-cliff logic is subsequently applied and
+the result is clipped to[0,100]. The coefficients are fixed
+design parameters of the current prototype and are not claimed
+to be clinically optimized.
+Ingredient assessment recognizes configured ingredient fam-
+ilies and ingredient-order signals. The additive pillar uses an
+explicit risk map:
+A= 100 exp(−0.12R A)−4C A,(13)
+subject to implementation bounds, whereR A is accumu-
+lated additive risk andC A is the count of relevant additive
+exposures. These are engineering assessment signals and not
+toxicological risk estimates.
+NOV A multipliers are configured as 1.00, 0.90, 0.70, and
+0.50 for NOV A-1 through NOV A-4, respectively, with an
+additional pre-aggregation cap for NOV A-4 cases.
+The system also flags undeclared ingredients, undeclared
+mandatory nutrients, undeclared allergens, and amplified-
+exposure categories. These safeguards are implementation
+rules rather than clinical cutoffs.
+E. Counterfactual Analysis
+Counterfactual analysis modifies an eligible attribute to form
+a modified inputX ′ and computes
+∆S=S(X ′, a)−S(X, a).(14)
+The purpose is to expose how the implemented scoring rules
+respond to controlled changes such as reduced added sugar,
+saturated fat, sodium, total sugar, or calories.
+Counterfactuals describe model-internal behavior and are
+not causal estimates of health outcomes.
+1
+14
+19
+Page 7 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
+Page 7 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
+
+
+IV. SYSTEMARCHITECTURE ANDIMPLEMENTATION
+The architecture consists of five layers:
+1) Acquisition
+2) Structured data
+3) Deterministic assessment
+4) Evidence/explanation
+5) Application
+At runtime, the label image is interpreted into structured
+fields; units, serving sizes, nutrient names, and missing-field
+conditions are normalized; the selected age profile is ap-
+plied; ingredient, processing, additive, and NOV A logic are
+evaluated; the score is bounded and converted to a grade;
+and the explanation is assembled from the already-computed
+numerical result and available evidence.
+The scoring engine is implemented as a separate computa-
+tional module. Its configuration contains age-specific reference
+values, nutrient penalty coefficients, category weights, ingre-
+dient rules, additive mappings, NOV A multipliers, and grade
+thresholds.
+The application is a React/TypeScript web application using
+Vite, Tailwind CSS, Zustand, and a client-side Gemini inte-
+gration for extraction and explanation. Evaluation scripts for
+ablation, age sensitivity, baseline variants, category analysis,
+counterfactual analysis, NOV A sensitivity, scoring verification,
+statistics, and figure generation were executed on September 4,
+2026 using Node.js v22.17.0 without pseudorandom-number
+generation.
+V. EXPERIMENTALSETUP ANDRESULTS
+The evaluation uses 100 structured packaged-food records
+spanning beverages, chocolates, biscuits, snacks, dairy prod-
+ucts, cereals, nuts, seeds, and protein-oriented products.
+The collection is an evaluation set rather than a statisti-
+cally representative survey of Indian packaged foods. All 100
+records contained the required fields for score generation, with
+zero engine missing-data flags.
+The evaluation deliberately probes multiple properties rather
+than relying on a single accuracy metric.
+A. Software Verification and Ablation
+Software verification checks score bounds, grade generation,
+deterministic repeatability, and execution success. All 100
+records passed these checks with zero crashes.
+Component ablation disables one major factor at a time
+while retaining the others. All tested ablation comparisons
+were statistically significant using paired Wilcoxon signed-
+rank tests with Holm–Bonferroni correction atα= 0.05.
+Table III shows that nutrition and NOV A removal generated
+the largest mean score changes, followed by additives, ingre-
+dients, and age. Processing produced a much smaller mean
+change in this particular evaluation set.
+Nutrition ablation produced a mean paired difference of
+20.52 points with Cohen’sd= 2.746, while NOV A ablation
+produced 16.50 points withd= 2.012. These statistics
+indicate sensitivity of the implemented score to configured
+components; they do not establish external validity.
+TABLE III
+COMPONENTABLATIONRESULTS ON100 RECORDS
+Component Removed Mean∆Median SD Grade Change
+Nutrition 20.52 21 7.44 88%
+NOV A 16.50 19 8.16 85%
+Additives 5.52 5 4.36 56%
+Ingredients 5.07 6 2.40 61%
+Age 3.31 3 3.03 23%
+Processing 0.28 0 0.45 3%
+TABLE IV
+AGE-SENSITIVITYRESULTSRELATIVE TO THEADULTCONFIGURATION
+Comparison Mean∆95% CIdAdj.p
+Adult–Child 4.31 [3.55, 5.07] 1.1242.0×10 −15
+Adult–Teen -2.09 [-2.36, -1.82] -1.5166.2×10 −15
+Adult–Elderly -0.23 [-0.32, -0.14] -0.5154.2×10 −6
+B. Age Sensitivity
+Age sensitivity compares the same product representation
+under different age configurations.
+As shown in Table IV, adult–child produced a mean differ-
+ence of 4.31 points, adult–teen−2.09points, and adult–elderly
+−0.23points; all remained significant after Holm–Bonferroni
+correction.
+These results demonstrate that the age parameter can alter
+the computed assessment while the product input remains
+fixed.
+C. Parameter Robustness
+Coefficient perturbation varied principal component weights
+by−50%to+50%. The perturbation preserved the unit-sum
+constraint by proportionally redistributing the induced weight
+difference among the remaining coefficients.
+Across all tested perturbations, maximum absolute score
+change was at most 7 points, rank correlations remained above
+0.967, and the consolidated analysis reports a range of 0.968–
+0.998.
+Grade changes ranged from 5% to 26%, depending on
+component and perturbation magnitude.
+These results indicate relatively stable product ordering un-
+der the tested perturbations, while discrete grades can change
+near grade boundaries. They do not demonstrate that the
+selected coefficients are optimal or clinically calibrated.
+D. NOVA Perturbation and Reference Alignment
+Controlled perturbation of NOV A classification produced a
+mean score swing of 35.58 points (median 35.00, SD 5.90,
+range 22–53), with a grade change in all 100 evaluated records.
+This confirms that the NOV A multiplier is operationally
+influential in the current formulation and that upstream NOV A
+misclassification could propagate substantially into the final
+score.
+Because the dataset’s recorded NOV A labels are also used
+by the scoring pipeline, the NOV A analysis is treated as
+5
+Page 8 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
+Page 8 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
+
+
+reference-system alignment rather than independent external
+validation.
+Using tie-aware average ranks, the Spearman correlation
+between continuous score and inverted NOV A group isρ=
+0.697, and between grade rank and NOV A group isρ= 0.721.
+The NOV A distribution is highly imbalanced:
+15NOV A-1,0NOV A-2,5NOV A-3,80NOV A-4.
+(15)
+Therefore, these coefficients should be read as descriptive
+alignment statistics on a fixed, skewed collection rather than
+independent nutritional validity evidence.
+E. Counterfactual Analysis
+Counterfactual modification was applicable to all 100
+records, of which 53 yielded a successfully processed coun-
+terfactual and 47 had no applicable modification case.
+Among processed cases, score improvements ranged from
+1 to 9 points (mean 3.36, median 3.00, SD 1.95), and all 53
+cases exhibited a grade transition.
+Dominant modification factors were primarily added sugar
+and saturated fat, followed by total sugar, sodium, and calories.
+Representative examples include:
+•A score changing from 23 to 30 after an added-sugar
+reduction.
+•A score changing from 55 to 60 after a saturated-fat
+reduction for Makino Roasted Masala Cashews.
+•A score changing from 63 to 70 after a sodium reduction.
+These results illustrate configuration-internal “what-if” be-
+havior and are not causal estimates of real-world health
+outcomes.
+F . Missing Data, Category Sensitivity, and Baseline Variants
+No evaluated record contained missing required fields; the
+engine’s missing-data checks correctly produced zero flags
+and valid numeric outputs for all 100 records, demonstrating
+implementation handling rather than robustness to severe real-
+world label incompleteness.
+Category sensitivity produced a mean score swing of 0.67
+points (median 1) with 10 grade changes, indicating that
+category-dependent logic is present but less influential than
+NOV A perturbation under the tested conditions.
+Four nested internal configurations were evaluated:
+•B1: nutrition only
+•B2: nutrition + ingredients
+•B3: nutrition + ingredients + processing
+•B4: full adult configuration
+These are controlled internal variants, not external state-of-
+the-art baselines.
+G. External Reference Comparison: Nutri-Score 2023
+For external reference comparison, the 100-product col-
+lection was evaluated against the updated Nutri-Score 2023
+framework [9].
+Because fruit, vegetable, and legume percentages were un-
+available for many composite products, FVL-dependent cases
+were not assigned assumed values.
+Nutri-Score was robust for 56 products (56%), while 44
+remained FVL-dependent.
+On the 56 robust cases, the continuous NutriGuard score
+correlated with inverse Nutri-Score class at
+ρ= 0.687, p= 4.86×10 −9.(16)
+After collapsing NutriGuard into five classes, exact agree-
+ment was 28.6% and Cohen’sκ= 0.193.
+This is an alignment/contrast analysis rather than clinical
+validation because the two systems encode different constructs.
+VI. DISCUSSION
+Four observations follow.
+First, numerical behavior is dominated by nutrition and
+NOV A processing: nutrition has the largest direct ablation
+effect, while NOV A produces a large multiplicative influence
+and perturbation swing.
+Second, age adaptation is measurable but moderate for most
+products, with a mean adult–child difference of 4.31 points.
+Third, coefficient sensitivity distinguishes ranking stability
+from grade stability: relative ordering is robust under the tested
+±50%perturbations, whereas discrete grade thresholds are
+more fragile near boundaries.
+Fourth, the architecture creates an auditable boundary be-
+tween generative and deterministic computation, so identical
+structured inputs and configurations produce identical numer-
+ical scores regardless of explanation wording.
+The Nutri-Score comparison further shows that NutriGuard
+is not simply reproducing an established external score. The
+moderate correlation and low categorical agreement indicate
+partial alignment while also reflecting different constructs and
+algorithmic design choices.
+Therefore, the result should be interpreted as a reference-
+system comparison rather than evidence of superiority.
+VII. VALIDATIONSCOPE, LIMITATIONS,ANDFUTURE
+WORK
+The current evidence supports software correctness, deter-
+minism, component sensitivity, parameter robustness, descrip-
+tive NOV A alignment, and implementation-level data-quality
+handling.
+It does not establish external nutritional validity, clinical
+validity, health outcomes, or population-level effects.
+Several limitations constrain interpretation.
+1) The evaluation contains only 100 product records and is
+not representative of the Indian packaged-food market.
+2) Age-specific references, coefficients, thresholds, multi-
+pliers, and penalties are engineering parameters rather
+than clinically calibrated quantities.
+3) NOV A is a high-leverage dependency, and the dataset
+is highly imbalanced, limiting interpretation of NOV A
+correlations.
+1
+Page 9 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
+Page 9 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
+
+
+4) Upstream label-extraction errors may propagate into the
+deterministic engine, while OCR accuracy has not been
+quantitatively benchmarked.
+5) Explanation quality has not been evaluated with stan-
+dardized factuality or expert-rating protocols.
+6) Internal B1–B4 comparisons are not external published
+baselines.
+7) Counterfactuals measure changes in the model’s own
+score rather than real-world health outcomes.
+Future work should establish a larger, independently curated
+and stratified Indian packaged-food benchmark with verified
+label images and structured ground truth.
+Extraction should be evaluated using field-level precision,
+recall, and F1. Independently annotated and more balanced
+NOV A labels should also be obtained.
+Further work should assess explanation faithfulness with do-
+main experts and compare against established external scoring
+systems such as Nutri-Score and FSSAI-aligned indices using
+matched inputs.
+Parameters should be calibrated using transparent expert- or
+outcome-based procedures, and uncertainty estimation should
+be added for incomplete or ambiguous extraction.
+Versioning the dataset, scoring configuration, ingredient
+rules, additive mappings, and evaluation scripts together would
+further improve reproducibility.
+VIII. CONCLUSION
+NutriGuard-AI presents a transparent, age-aware, deter-
+ministic framework for packaged-food label assessment that
+integrates nutrient composition, ingredient characteristics,
+food processing, additive exposure, data-quality safeguards,
+evidence-oriented explanation, and counterfactual analysis
+while strictly separating generative AI from numerical decision
+computation.
+Evaluation on 100 packaged-food records demonstrated
+bounded and deterministic execution, strong sensitivity to
+nutrition and NOV A components, measurable age-dependent
+score changes, stable product ranking under±50%coefficient
+perturbation, descriptive alignment with recorded NOV A la-
+bels, and an interpretable counterfactual mechanism.
+The Nutri-Score comparison provides an external reference
+point without being treated as validation.
+Collectively, these findings support reproducibility, in-
+spectability, and internal consistency of the implemented
+framework, but they do not establish clinical validity,
+population-level health effects, or superiority over external
+nutrition-scoring systems.
+NutriGuard-AI is therefore best positioned as a research
+prototype for transparent intelligent information processing
+of packaged-food labels, with a clear path toward stronger
+external, expert, and clinical validation.
+REFERENCES
+[1] F. Y . Assiri, M. D. Alahmadi, M. A. Almuashi, and A. M. Almansour,
+“Extract nutritional information from bilingual food labels using large
+language models,”Journal of Imaging, vol. 11, no. 8, Art. no. 271, 2025,
+doi: 10.3390/jimaging11080271.
+[2] V . Dindukurthi, D. Jain, A. Tripathi, J. M. Obbineni, and I. Kandasamy,
+“An explainable graph retrieval augmented generation framework for
+personalized nutrition recommendation,”Frontiers in Artificial Intelli-
+gence, vol. 9, Art. no. 1808444, 2026, doi: 10.3389/frai.2026.1808444.
+[3] G. Hu, N. Flexner, M. V . Tiscornia, and M. R. L’Abbe, “Accelerating
+the classification of NOV A food processing levels using a fine-tuned
+language model: A multi-country study,”Nutrients, vol. 15, no. 19, Art.
+no. 4167, 2023, doi: 10.3390/nu15194167.
+[4] J. Wu, R. Yan, H. Luo, D. Liu, M. K. Townsend, L. S. Hartwig, D.
+Milketinas, X. Hu, and C. Yang, “NutriOrion: A hierarchical multi-agent
+framework for personalized nutrition intervention grounded in clinical
+guidelines,” arXiv preprint arXiv:2602.18650, 2026.
+[5] A. Prasad, A. S., B. R., and V . G., “NutritionWise: Converting
+nutritional labels into personalized, AI-driven nutritional insights,”
+Procedia Computer Science, vol. 283, pp. 3307–3317, 2026, doi:
+10.1016/j.procs.2026.06.394.
+[6] X. Deng and W. Tu, “Personalized nutrition-aware dietary recommen-
+dation with multimodal large language models,”IEEE Access, vol. 14,
+pp. 21791–21804, 2026, doi: 10.1109/ACCESS.2026.3660702.
+[7] Y . Wang, Y . Yang, G. Melo Guerrero, R. M. Nayga, Jr., and A.
+Zahid, “An LLM-RAG approach for Healthy Eating Index-informed
+personalized food recommendations,” arXiv preprint arXiv:2605.15213,
+2026.
+[8] D. C. Shikara, A. S. Bhuvaneshwari, C. Meghana, G. Neethu Chandra,
+and S. Meghana, “NutriCoach: A multi-agent AI framework for person-
+alized nutrition recommendation using RAG and LLMs,”International
+Journal of Artificial Intelligence & Applications, vol. 5, no. 1, pp. 31–41,
+2026, doi: 10.34218/IJAIAP.05.01.004.
+[9] Sante publique France, “Nutri-Score 2023: Calculation methods for the
+updated algorithm,” Scientific and Technical Q&A, 2024.
+[10] World Health Organization,Guideline: Sugars Intake for Adults and
+Children. Geneva, Switzerland: WHO, 2015.
+[11] Food Safety and Standards Authority of India,Food Safety and Stan-
+dards (Food Products Standards and Food Additives) Regulations, 2011.
+Government of India, 2011.
+[12] Indian Council of Medical Research–National Institute of Nutrition,
+Dietary Guidelines for Indians–2024. Hyderabad, India, 2024.
+1
+3
+4
+4
+5
+6
+7
+9
+10
+11
+12
+13
+18
+20
+21
+Page 10 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
+Page 10 of 10 - Integrity Submission
+Submission ID
+trn:oid:::1:3652685803
